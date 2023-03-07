@@ -20,7 +20,7 @@ class client(discord.Client):
     async def on_ready(self):
         await self.wait_until_ready()
         if not self.synced:
-            #await tree.sync(guilds)
+            await tree.sync( guild= discord.Object(id = 473695678690885632))
             self.synced = True
         print(f"We have logged in as: {self.user}.")
         await self.change_presence(
@@ -30,6 +30,8 @@ bot = client()
 tree = app_commands.CommandTree(bot)
 
 #Commands
-
+@tree.command(name = "flyday", description = "Find the next fly day", guilds= guilds)
+async def self(interaction: discord.Interaction):
+    await interaction.response.send_message("Salt reloaded. It's time to be a fucking menace.")
 
 bot.run(bot_token)

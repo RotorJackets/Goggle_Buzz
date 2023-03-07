@@ -1,7 +1,11 @@
+'''
+'''
 import discord
 import random
 from discord import app_commands
 from discord.utils import get
+from api_key import authentication_token
+
 # Version 1.0
 # Testing Server id = 473695678690885632
 # RotorJackets id = 723199784697200810
@@ -28,4 +32,4 @@ tree = app_commands.CommandTree(bot)
 #Commands
 
 
-bot.run()
+bot.run(authentication_token)

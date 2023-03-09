@@ -80,7 +80,9 @@ async def test_options(
 
 @tree.command(name="fight_song")
 async def test_input(interaction: discord.Interaction):
-    await interaction.channel.send(random.choice(fight_song_quotes))
+    await interaction.response.send_message(
+        random.choice(fight_song_quotes), ephemeral=False
+    )
 
 
 bot.run(bot_token)

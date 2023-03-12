@@ -5,6 +5,8 @@ from discord import app_commands
 from discord.utils import get
 from api_key import bot_token
 
+import lib.leaderboard as leaderboard
+
 # Version 1.0
 # Testing Server id = 473695678690885632
 # RotorJackets id = 723199784697200810
@@ -32,7 +34,7 @@ fight_song_quotes = [
 ]
 
 
-class client(discord.Client):
+class bot_client(discord.Client):
     def __init__(self):
         super().__init__(intents=discord.Intents.all())
 
@@ -41,20 +43,26 @@ class client(discord.Client):
         print(f"We have logged in as: {self.user}.")
 
 
-bot = client()
-tree = app_commands.CommandTree(bot)
+bot_client = bot_client()
+tree = app_commands.CommandTree(bot_client)
 
 
 # Commands
-@bot.event
+@bot_client.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author.bot:
         return
 
     if "!sync" in message.content.lower():
+        print("Starting sync.")
         await tree.sync()
         await message.channel.send("Synced")
         print("Command tree synced.")
+
+    if (level := leaderboard.adjust_xp(message.author.id, 1)) is not None:
+        await message.channel.send(
+            f"{message.author.mention} has leveled up to level {level}"
+        )
 
 
 @tree.command(name="test_input")
@@ -85,4 +93,4 @@ async def test_input(interaction: discord.Interaction):
     )
 
 
-bot.run(bot_token)
+bot_client.run(bot_token)

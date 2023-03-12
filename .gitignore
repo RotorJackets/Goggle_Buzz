@@ -2,3 +2,4 @@ api_key.py
 .idea
 __pycache__
 env
+leaderboard.json

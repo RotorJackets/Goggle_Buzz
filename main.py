@@ -81,14 +81,13 @@ async def on_message(message):
         )
 
 
-@tree.command(name="show_leaderboard")
+@tree.command(name="show_leaderboard", description="Shows the leaderboard")
 async def show_leaderboard(interaction: discord.Interaction):
     leaders = leaderboard.get_leaders(interaction.guild.id)
     leaderboard_output = """"""
 
     for i in range(len(leaders)):
-        leaderboard_output += f"""
-Level {leaders[i][1]["level"]}:   {await bot_client.fetch_user(leaders[i][0])}"""
+        leaderboard_output += f"""\nLevel {leaders[i][1]["level"]}:   {await bot_client.fetch_user(leaders[i][0])}"""
 
     await interaction.response.send_message(
         leaderboard_output,
@@ -97,7 +96,22 @@ Level {leaders[i][1]["level"]}:   {await bot_client.fetch_user(leaders[i][0])}""
     )
 
 
-@tree.command(name="fight_song")
+@tree.command(name="show_level", description="Shows your level or the level of a user")
+@app_commands.describe(member="The user to show the level of, defaults to yourself")
+async def show_level(interaction: discord.Interaction, member: discord.Member = None):
+    if member is None:
+        member = interaction.user
+
+    member_info = leaderboard.get_info(interaction.guild.id, member.id)
+    await interaction.response.send_message(
+        f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard!"""
+        + f"""They are level **{member_info["level"]}** and are """
+        + f"""**{member_info["xp"]/config["level_up_XP"] * 100:3.2f}%** to the next level!""",
+        ephemeral=True,
+    )
+
+
+@tree.command(name="fight_song", description="Sends a random fight song quote")
 async def fight_song(interaction: discord.Interaction):
     await interaction.response.send_message(
         random.choice(config["fight_song_quotes"]), ephemeral=False

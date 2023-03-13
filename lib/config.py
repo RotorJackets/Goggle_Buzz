@@ -1,7 +1,7 @@
 config = {
-    "delay_XP_seconds": 30,
+    "delay_XP_seconds": 0,
     "level_up_XP": 50,
-    "leaderboard_save_interval_seconds": 120,
+    "leaderboard_save_interval_seconds": 5,
     "leaderboard_delete_after_seconds": 120,
     "fight_song_quotes": [
         "I'm a Ramblin' Wreck from Georgia Tech, and a hell of an engineer",

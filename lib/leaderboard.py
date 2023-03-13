@@ -22,6 +22,7 @@ def author_check(guild_ID: int, user_ID: int):
         leaderboard[guild_ID][user_ID] = {
             "level": 1,
             "xp": 0,
+            "place": 0,
             "last_message": time.time(),
         }
 
@@ -61,6 +62,11 @@ def get_leaders(guild_ID: int):
         reverse=True,
     )
 
+    for i in range(len(sorted_leaderboard)):
+        leaderboard[guild_ID][sorted_leaderboard[i]]["place"] = i + 1
+    
+    save()
+
     sorted_leaders = []
     for i in range(len(sorted_leaderboard) if len(sorted_leaderboard) < 11 else 10):
         sorted_leaders.append(
@@ -69,6 +75,12 @@ def get_leaders(guild_ID: int):
 
     return sorted_leaders
 
+def get_info(guild_ID: int, user_ID: int):
+    user_ID = str(user_ID)
+    guild_ID = str(guild_ID)
+
+    author_check(guild_ID, user_ID)
+    return leaderboard[guild_ID][user_ID]
 
 def save():
     with open("leaderboard.json", "w") as f:

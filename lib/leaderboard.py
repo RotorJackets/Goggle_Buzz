@@ -1,6 +1,7 @@
 import json
 import time
 import random
+import discord
 from lib.config import config
 
 # Opening JSON file
@@ -12,17 +13,17 @@ debug = True
 f.close()
 
 
-def author_check(guild_ID: int, user_ID: int):
-    user_ID = str(user_ID)
-    guild_ID = str(guild_ID)
+def author_check(guild: discord.guild.Guild, member: discord.member.Member):
+    member_ID = str(member.id)
+    guild_ID = str(guild.id)
 
     if leaderboard.get(guild_ID) is None:
         print(f"Guild not found, adding {guild_ID} to leaderboard.")
         leaderboard[guild_ID] = {}
 
-    if leaderboard[guild_ID].get(user_ID) is None:
-        print(f"Author not found, adding {user_ID} to leaderboard.")
-        leaderboard[guild_ID][user_ID] = {
+    if leaderboard[guild_ID].get(member_ID) is None:
+        print(f"Author not found, adding {member_ID} to leaderboard.")
+        leaderboard[guild_ID][member_ID] = {
             "level": 1,
             "xp": 0,
             "place": 0,
@@ -31,36 +32,36 @@ def author_check(guild_ID: int, user_ID: int):
 
 
 def adjust_xp(
-    guild_ID: int,
-    user_ID: int,
+    guild: discord.guild.Guild,
+    member: discord.member.Member,
     xp: int = random.randint(
         config["random_xp_range"][0], config["random_xp_range"][1]
     ),
 ):
-    user_ID = str(user_ID)
-    guild_ID = str(guild_ID)
+    member_ID = str(member.id)
+    guild_ID = str(guild.id)
     level_up = False
 
-    author_check(guild_ID, user_ID)
+    author_check(guild, member)
     if (
-        time.time() - leaderboard[guild_ID][user_ID]["last_message"]
+        time.time() - leaderboard[guild_ID][member_ID]["last_message"]
         > config["delay_XP_seconds"]
     ):
-        leaderboard[guild_ID][user_ID]["xp"] += xp
-        if leaderboard[guild_ID][user_ID]["xp"] >= config["level_up_XP"]:
-            leaderboard[guild_ID][user_ID]["level"] += 1
-            leaderboard[guild_ID][user_ID]["xp"] = 0
+        leaderboard[guild_ID][member_ID]["xp"] += xp
+        if leaderboard[guild_ID][member_ID]["xp"] >= config["level_up_XP"]:
+            leaderboard[guild_ID][member_ID]["level"] += 1
+            leaderboard[guild_ID][member_ID]["xp"] = 0
             level_up = True
-        leaderboard[guild_ID][user_ID]["last_message"] = time.time()
+        leaderboard[guild_ID][member_ID]["last_message"] = time.time()
 
     if level_up:
-        return leaderboard[guild_ID][user_ID]["level"]
+        return leaderboard[guild_ID][member_ID]["level"]
     else:
         return None
 
 
-def get_leaders(guild_ID: int):
-    guild_ID = str(guild_ID)
+def get_leaders(guild: discord.guild.Guild):
+    guild_ID = str(guild.id)
 
     sorted_leaderboard = sorted(
         leaderboard[guild_ID],
@@ -74,7 +75,7 @@ def get_leaders(guild_ID: int):
     for i in range(len(sorted_leaderboard)):
         leaderboard[guild_ID][sorted_leaderboard[i]]["place"] = i + 1
 
-    save()
+    save(guild)
 
     sorted_leaders = []
     for i in range(len(sorted_leaderboard) if len(sorted_leaderboard) < 11 else 10):
@@ -85,16 +86,16 @@ def get_leaders(guild_ID: int):
     return sorted_leaders
 
 
-def get_info(guild_ID: int, user_ID: int):
-    user_ID = str(user_ID)
-    guild_ID = str(guild_ID)
+def get_info(guild: discord.guild.Guild, member: discord.member.Member):
+    member_ID = str(member.id)
+    guild_ID = str(guild.id)
 
-    author_check(guild_ID, user_ID)
-    get_leaders(guild_ID)
-    return leaderboard[guild_ID][user_ID]
+    author_check(guild, member)
+    get_leaders(guild)
+    return leaderboard[guild_ID][member_ID]
 
 
-def save(guild_ID: int = None):
+def save(guild: discord.guild.Guild):
     # TODO: Make this more efficient and only save the guild that called the function
     with open("leaderboard.json", "w") as f:
         if debug:
@@ -110,9 +111,11 @@ def save(guild_ID: int = None):
     f.close()
 
 
-def reset(guild_ID: int):
-    guild_ID = str(guild_ID)
-    author_check(guild_ID, 0)
+def reset_guild(guild: discord.guild.Guild):
+    guild_ID = str(guild.id)
+
+    if leaderboard.get(guild_ID) is None:
+        leaderboard[guild_ID] = {}
 
     with open("leaderboard.json.backup", "a") as f:
         f.writelines(["\n"])
@@ -121,4 +124,4 @@ def reset(guild_ID: int):
     f.close()
 
     leaderboard[guild_ID] = {}
-    save()
+    save(None)

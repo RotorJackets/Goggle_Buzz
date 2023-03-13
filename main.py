@@ -33,7 +33,6 @@ tree = app_commands.CommandTree(bot_client)
 @tasks.loop(seconds=config["leaderboard_save_interval_seconds"], count=None)
 async def background_leaderboard_save():
     leaderboard.save()
-    print("Leaderboard Saved")
 
 
 # Commands
@@ -79,24 +78,16 @@ async def on_message(message):
 @tree.command(name="show_leaderboard")
 async def show_leaderboard(interaction: discord.Interaction):
     leaders = leaderboard.get_leaders()
+    leaderboard_output = """"""
+
+    for i in range(len(leaders)):
+        leaderboard_output += f"""
+Level {leaders[i][1]["level"]}:   {await bot_client.fetch_user(leaders[i][0])}"""
+
     await interaction.response.send_message(
-        f"""
-```
-Level {leaders[0][1]["level"]}:   {await bot_client.fetch_user(leaders[0][0])}   
-Level {leaders[1][1]["level"]}:   {await bot_client.fetch_user(leaders[1][0])}   
-Level {leaders[2][1]["level"]}:   {await bot_client.fetch_user(leaders[2][0])}   
-Level {leaders[3][1]["level"]}:   {await bot_client.fetch_user(leaders[3][0])}   
-Level {leaders[4][1]["level"]}:   {await bot_client.fetch_user(leaders[4][0])}   
-Level {leaders[5][1]["level"]}:   {await bot_client.fetch_user(leaders[5][0])}   
-Level {leaders[6][1]["level"]}:   {await bot_client.fetch_user(leaders[6][0])}   
-Level {leaders[7][1]["level"]}:   {await bot_client.fetch_user(leaders[7][0])}   
-Level {leaders[8][1]["level"]}:   {await bot_client.fetch_user(leaders[8][0])}   
-Level {leaders[9][1]["level"]}:   {await bot_client.fetch_user(leaders[9][0])}   
-...
-```
-        """,
+        leaderboard_output,
         ephemeral=False,
-        delete_after=30,
+        delete_after=config["leaderboard_delete_after_seconds"],
     )
 
 

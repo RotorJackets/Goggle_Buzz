@@ -1,7 +1,8 @@
 config = {
-    "delay_XP_seconds": 0,
-    "level_up_XP": 10,
+    "delay_XP_seconds": 30,
+    "level_up_XP": 50,
     "leaderboard_save_interval_seconds": 120,
+    "leaderboard_delete_after_seconds": 120,
     "fight_song_quotes": [
         "I'm a Ramblin' Wreck from Georgia Tech, and a hell of an engineer",
         "Oh! If I had a daughter, sir, I'd dress her in White and Gold",

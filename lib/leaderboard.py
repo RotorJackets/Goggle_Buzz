@@ -6,9 +6,6 @@ from lib.config import config
 with open("leaderboard.json") as f:
     leaderboard = json.load(f)
 
-for user in leaderboard:
-    print(type(user))
-
 f.close()
 
 
@@ -46,13 +43,9 @@ def get_leaders():
         reverse=True,
     )
 
-    if (length := len(sorted_leaderboard)) < 10:
-        for i in range(length - 1, 10):
-            sorted_leaderboard.append(sorted_leaderboard[length - 1])
-
-    sorted_leaders = [None] * 10
-    for i in range(10):
-        sorted_leaders[i] = [sorted_leaderboard[i], leaderboard[sorted_leaderboard[i]]]
+    sorted_leaders = []
+    for i in range(len(sorted_leaderboard) if len(sorted_leaderboard) < 11 else 10):
+        sorted_leaders.append([sorted_leaderboard[i], leaderboard[sorted_leaderboard[i]]])
 
     return sorted_leaders
 

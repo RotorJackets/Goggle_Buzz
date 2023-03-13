@@ -3,6 +3,7 @@ config = {
     "level_up_XP": 50,
     "leaderboard_save_interval_seconds": 5,
     "leaderboard_delete_after_seconds": 120,
+    "guilds": [473695678690885632, 723199784697200810],
     "fight_song_quotes": [
         "I'm a Ramblin' Wreck from Georgia Tech, and a hell of an engineer",
         "Oh! If I had a daughter, sir, I'd dress her in White and Gold",

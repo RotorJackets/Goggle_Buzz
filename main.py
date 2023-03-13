@@ -12,7 +12,10 @@ from lib.config import config
 # Testing Server id = 473695678690885632
 # RotorJackets id = 723199784697200810
 
-guilds = [discord.Object(id=473695678690885632), discord.Object(id=723199784697200810)]
+guilds = []
+
+for i in config["guilds"]:
+    guilds.append(discord.Object(id=i))
 
 
 class bot_client(discord.Client):
@@ -96,7 +99,9 @@ async def show_leaderboard(interaction: discord.Interaction):
     )
 
 
-@tree.command(name="show_level", description="Shows your level or the level of a user")
+@tree.command(
+    name="show_level", description="Shows your level or the level of another user"
+)
 @app_commands.describe(member="The user to show the level of, defaults to yourself")
 async def show_level(interaction: discord.Interaction, member: discord.Member = None):
     if member is None:
@@ -104,7 +109,7 @@ async def show_level(interaction: discord.Interaction, member: discord.Member = 
 
     member_info = leaderboard.get_info(interaction.guild.id, member.id)
     await interaction.response.send_message(
-        f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard!"""
+        f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard! """
         + f"""They are level **{member_info["level"]}** and are """
         + f"""**{member_info["xp"]/config["level_up_XP"] * 100:3.2f}%** to the next level!""",
         ephemeral=True,

@@ -68,12 +68,14 @@ async def on_message(message):
         await tree.sync()
         await message.channel.send("Synced")
         print("Command tree synced.")
-    
+
     if "!save" in message.content.lower():
         leaderboard.save()
         await message.channel.send("Saved")
 
-    if (level := leaderboard.adjust_xp(message.guild.id, message.author.id, 1)) is not None:
+    if (
+        level := leaderboard.adjust_xp(message.guild.id, message.author.id, 1)
+    ) is not None:
         await message.channel.send(
             f"{message.author.mention} has leveled up to level {level}"
         )
@@ -81,7 +83,7 @@ async def on_message(message):
 
 @tree.command(name="show_leaderboard")
 async def show_leaderboard(interaction: discord.Interaction):
-    leaders = leaderboard.get_leaders()
+    leaders = leaderboard.get_leaders(interaction.guild.id)
     leaderboard_output = """"""
 
     for i in range(len(leaders)):

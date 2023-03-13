@@ -23,5 +23,6 @@ config = {
         "Studenter i den gamle stad, ta vare på byens ry!",
         "La'kke byen få ro, men la den få merke det er en studenterby!",
         "Og øl og dram, og øl og dram, og øl og dram, og øl og dram.",
+        "https://media.discordapp.net/attachments/604866125209272331/846498885718507530/image0.gif",
     ],
 }

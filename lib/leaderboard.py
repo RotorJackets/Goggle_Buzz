@@ -80,13 +80,14 @@ def get_info(guild_ID: int, user_ID: int):
     user_ID = str(user_ID)
     guild_ID = str(guild_ID)
 
+    get_leaders(guild_ID)
     author_check(guild_ID, user_ID)
     return leaderboard[guild_ID][user_ID]
 
 
 def save(guild_ID: int = None):
     # TODO: Make this more efficient and only save the guild that called the function
-    
+
     with open("leaderboard.json", "w") as f:
         json.dump(leaderboard, f)
     f.close()

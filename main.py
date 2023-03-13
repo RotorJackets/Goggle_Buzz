@@ -8,6 +8,8 @@ from api_key import bot_token
 import lib.leaderboard as leaderboard
 from lib.config import config
 
+from cogs.leaderboard import Leaderboard_cog as Leaderboard_cog
+
 # Version 1.0
 # Testing Server id = 473695678690885632
 # RotorJackets id = 723199784697200810
@@ -27,6 +29,9 @@ class bot_client(discord.Client):
         background_leaderboard_save.start()
         print(f"We have logged in as: {self.user}.")
 
+    async def setup_hook(self):
+        await bot_client.load_extension(Leaderboard_cog)
+
 
 bot_client = bot_client()
 tree = app_commands.CommandTree(bot_client)
@@ -34,14 +39,14 @@ tree = app_commands.CommandTree(bot_client)
 
 # Loops
 @tasks.loop(seconds=config["leaderboard_save_interval_seconds"], count=None)
-async def background_leaderboard_save():
+async def background_leaderboard_save() -> None:
     leaderboard.save(guilds)
 
 
 # Commands
 ## Text Commands and Events
 @bot_client.event
-async def on_message(message):
+async def on_message(message) -> None:
     if message.author.bot:
         return
 
@@ -68,27 +73,27 @@ async def on_message(message):
 
 
 @bot_client.event
-async def on_member_join(member):
+async def on_member_join(member) -> None:
     pass
 
 
 @bot_client.event
-async def on_member_remove(member):
+async def on_member_remove(member) -> None:
     pass
 
 
 @bot_client.event
-async def on_reaction_add(reaction, user):
+async def on_reaction_add(reaction, user) -> None:
     pass
 
 
 @bot_client.event
-async def on_reaction_remove(reaction, user):
+async def on_reaction_remove(reaction, user) -> None:
     pass
 
 
 @bot_client.event
-async def on_reaction_clear(message, reactions):
+async def on_reaction_clear(message, reactions) -> None:
     pass
 
 
@@ -97,85 +102,9 @@ async def on_reaction_clear(message, reactions):
     name="fight_song",
     description="Sends a random fight song quote",
 )
-async def fight_song(interaction: discord.Interaction):
+async def fight_song(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(
         random.choice(config["fight_song_quotes"]), ephemeral=False
-    )
-
-
-## Leaderboard Commands
-@tree.command(
-    name="show_leaderboard",
-    description="Shows the leaderboard",
-)
-async def show_leaderboard(interaction: discord.Interaction):
-    leaders = leaderboard.get_leaders(interaction.guild)
-    leaderboard_output = """"""
-
-    for i in range(len(leaders)):
-        leaderboard_output += f"""\nLevel {leaders[i][1]["level"]}:   {await bot_client.fetch_user(leaders[i][0])}"""
-
-    if len(leaderboard_output) == 0:
-        leaderboard_output = "No one is on the leaderboard yet!"
-
-    await interaction.response.send_message(
-        leaderboard_output,
-        ephemeral=False,
-        delete_after=config["leaderboard_delete_after_seconds"],
-    )
-
-
-@tree.command(
-    name="show_level",
-    description="Shows your level or the level of another user",
-)
-@app_commands.describe(member="The user to show the level of, defaults to yourself")
-async def show_level(interaction: discord.Interaction, member: discord.Member = None):
-    if member is None:
-        member = interaction.user
-
-    member_info = leaderboard.get_info(interaction.guild, member)
-    await interaction.response.send_message(
-        f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard! """
-        + f"""They are level **{member_info["level"]}** and are """
-        + f"""**{member_info["xp"]/config["level_up_XP"] * 100:3.2f}%** to the next level!""",
-        ephemeral=True,
-    )
-
-
-@tree.command(
-    name="save_leaderboard",
-    description="Saves the leaderboard",
-)
-@commands.has_permissions(administrator=True)
-async def save_leaderboard(interaction: discord.Interaction):
-    leaderboard.save(interaction.guild)
-    await interaction.response.send_message(
-        f"Leaderboard for **{interaction.guild.name}** has been saved.", ephemeral=True
-    )
-
-
-@tree.command(
-    name="reset_leaderboard",
-    description="Resets the leaderboard",
-)
-@commands.has_permissions(administrator=True)
-async def reset_leaderboard(interaction: discord.Interaction):
-    leaderboard.reset_guild(interaction.guild)
-    await interaction.response.send_message(
-        f"Leaderboard for **{interaction.guild.name}** has been reset.", ephemeral=True
-    )
-
-
-@tree.command(
-    name="reset_member_xp",
-    description="Resets the leaderboard",
-)
-@commands.has_permissions(administrator=True)
-async def reset_member_xp(interaction: discord.Interaction, member: discord.Member):
-    leaderboard.reset_member(member)
-    await interaction.response.send_message(
-        f"Leaderboard for **{interaction.guild.name}** has been reset.", ephemeral=True
     )
 
 
@@ -187,7 +116,7 @@ async def reset_member_xp(interaction: discord.Interaction, member: discord.Memb
 @commands.has_permissions(kick_members=True)
 async def kick(
     interaction: discord.Interaction, member: discord.Member, reason: str = None
-):
+) -> None:
     await interaction.response.send_message(
         f"""{member.mention} has been kicked.""", ephemeral=True
     )
@@ -201,7 +130,7 @@ async def kick(
 @commands.has_permissions(ban_members=True)
 async def ban(
     interaction: discord.Interaction, member: discord.Member, reason: str = None
-):
+) -> None:
     await interaction.response.send_message(
         f"""{member.mention} has been banned.""", ephemeral=True
     )
@@ -215,7 +144,7 @@ async def ban(
 @commands.has_permissions(manage_nicknames=True)
 async def change_nick(
     interaction: discord.Interaction, member: discord.Member, nick: str = None
-):
+) -> None:
     await interaction.response.send_message(
         f"""{member.mention}'s nickname has been changed to {nick}.""", ephemeral=True
     )

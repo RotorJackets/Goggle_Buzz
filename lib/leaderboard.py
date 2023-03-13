@@ -1,10 +1,13 @@
 import json
 import time
+import random
 from lib.config import config
 
 # Opening JSON file
 with open("leaderboard.json") as f:
     leaderboard = json.load(f)
+
+debug = True
 
 f.close()
 
@@ -27,7 +30,13 @@ def author_check(guild_ID: int, user_ID: int):
         }
 
 
-def adjust_xp(guild_ID: int, user_ID: int, xp: int):
+def adjust_xp(
+    guild_ID: int,
+    user_ID: int,
+    xp: int = random.randint(
+        config["random_xp_range"][0], config["random_xp_range"][1]
+    ),
+):
     user_ID = str(user_ID)
     guild_ID = str(guild_ID)
     level_up = False
@@ -87,9 +96,17 @@ def get_info(guild_ID: int, user_ID: int):
 
 def save(guild_ID: int = None):
     # TODO: Make this more efficient and only save the guild that called the function
-
     with open("leaderboard.json", "w") as f:
-        json.dump(leaderboard, f)
+        if debug:
+            json.dump(
+                leaderboard,
+                f,
+                indent=4,
+                sort_keys=True,
+                separators=(",", ": "),
+            )
+        else:
+            json.dump(leaderboard, f)
     f.close()
 
 

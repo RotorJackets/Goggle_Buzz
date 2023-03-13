@@ -62,7 +62,7 @@ async def on_message(message):
         await message.channel.send("Saved")
 
     if (
-        level := leaderboard.adjust_xp(message.guild.id, message.author.id, 1)
+        level := leaderboard.adjust_xp(message.guild.id, message.author.id)
     ) is not None:
         await message.channel.send(
             f"{message.author.mention} has leveled up to level {level}"

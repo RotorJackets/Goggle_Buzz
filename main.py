@@ -39,28 +39,7 @@ async def background_leaderboard_save():
 
 
 # Commands
-
-# @tree.command(name="test_input")
-# async def test_input(interaction: discord.Interaction, number: int, string: str):
-#     await interaction.response.send_message(
-#         f"Modify {number=} {string=}", ephemeral=True
-#     )
-
-
-# @tree.command(name="test_options")
-# @app_commands.describe(option="This is a description of what the option means")
-# @app_commands.choices(
-#     option=[
-#         app_commands.Choice(name="Option 1", value="1"),
-#         app_commands.Choice(name="Option 2", value="2"),
-#     ]
-# )
-# async def test_options(
-#     interaction: discord.Interaction, option: app_commands.Choice[str]
-# ):
-#     pass
-
-
+## Text Commands and Events
 @bot_client.event
 async def on_message(message):
     if message.author.bot:
@@ -90,7 +69,22 @@ async def on_message(message):
         )
 
 
-@tree.command(name="show_leaderboard", description="Shows the leaderboard")
+## Fun Commands
+@tree.command(
+    name="fight_song",
+    description="Sends a random fight song quote",
+)
+async def fight_song(interaction: discord.Interaction):
+    await interaction.response.send_message(
+        random.choice(config["fight_song_quotes"]), ephemeral=False
+    )
+
+
+## Leaderboard Commands
+@tree.command(
+    name="show_leaderboard",
+    description="Shows the leaderboard",
+)
 async def show_leaderboard(interaction: discord.Interaction):
     leaders = leaderboard.get_leaders(interaction.guild.id)
     leaderboard_output = """"""
@@ -106,7 +100,8 @@ async def show_leaderboard(interaction: discord.Interaction):
 
 
 @tree.command(
-    name="show_level", description="Shows your level or the level of another user"
+    name="show_level",
+    description="Shows your level or the level of another user",
 )
 @app_commands.describe(member="The user to show the level of, defaults to yourself")
 async def show_level(interaction: discord.Interaction, member: discord.Member = None):
@@ -122,15 +117,35 @@ async def show_level(interaction: discord.Interaction, member: discord.Member = 
     )
 
 
-@tree.command(name="fight_song", description="Sends a random fight song quote")
-async def fight_song(interaction: discord.Interaction):
+@tree.command(
+    name="save_leaderboard",
+    description="Saves the leaderboard",
+)
+@commands.has_permissions(administrator=True)
+async def save_leaderboard(interaction: discord.Interaction):
+    leaderboard.save(interaction.guild_id)
     await interaction.response.send_message(
-        random.choice(config["fight_song_quotes"]), ephemeral=False
+        f"Leaderboard for **{interaction.guild.name}** has been saved.", ephemeral=True
     )
 
 
-# Moderator Commands
-@tree.command(name="kick", description="Kicks a user")
+@tree.command(
+    name="reset_leaderboard",
+    description="Resets the leaderboard",
+)
+@commands.has_permissions(administrator=True)
+async def save_leaderboard(interaction: discord.Interaction):
+    leaderboard.reset(interaction.guild.id)
+    await interaction.response.send_message(
+        f"Leaderboard for **{interaction.guild.name}** has been reset.", ephemeral=True
+    )
+
+
+## Moderator Commands
+@tree.command(
+    name="kick",
+    description="Kicks a user",
+)
 @commands.has_permissions(kick_members=True)
 async def kick(
     interaction: discord.Interaction, member: discord.Member, reason: str = None
@@ -141,7 +156,10 @@ async def kick(
     await member.kick(reason=reason)
 
 
-@tree.command(name="ban", description="Bans a user")
+@tree.command(
+    name="ban",
+    description="Bans a user",
+)
 @commands.has_permissions(ban_members=True)
 async def ban(
     interaction: discord.Interaction, member: discord.Member, reason: str = None
@@ -152,7 +170,10 @@ async def ban(
     await member.ban(reason=reason)
 
 
-@tree.command(name="change_nick", description="Changes a user's nickname")
+@tree.command(
+    name="change_nick",
+    description="Changes a user's nickname",
+)
 @commands.has_permissions(manage_nicknames=True)
 async def change_nick(
     interaction: discord.Interaction, member: discord.Member, nick: str = None

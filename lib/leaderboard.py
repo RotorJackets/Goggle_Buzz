@@ -64,7 +64,7 @@ def get_leaders(guild_ID: int):
 
     for i in range(len(sorted_leaderboard)):
         leaderboard[guild_ID][sorted_leaderboard[i]]["place"] = i + 1
-    
+
     save()
 
     sorted_leaders = []
@@ -75,6 +75,7 @@ def get_leaders(guild_ID: int):
 
     return sorted_leaders
 
+
 def get_info(guild_ID: int, user_ID: int):
     user_ID = str(user_ID)
     guild_ID = str(guild_ID)
@@ -82,7 +83,24 @@ def get_info(guild_ID: int, user_ID: int):
     author_check(guild_ID, user_ID)
     return leaderboard[guild_ID][user_ID]
 
-def save():
+
+def save(guild_ID: int = None):
+    # TODO: Make this more efficient and only save the guild that called the function
+    
     with open("leaderboard.json", "w") as f:
         json.dump(leaderboard, f)
     f.close()
+
+
+def reset(guild_ID: int):
+    guild_ID = str(guild_ID)
+    author_check(guild_ID, 0)
+
+    with open("leaderboard.json.backup", "a") as f:
+        f.writelines(["\n"])
+        f.writelines(["\n", f"{time.time()} | {guild_ID} \n"])
+        json.dump(leaderboard[guild_ID], f)
+    f.close()
+
+    leaderboard[guild_ID] = {}
+    save()

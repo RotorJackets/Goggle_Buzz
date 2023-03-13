@@ -1,8 +1,12 @@
 import discord
 import random
+
+from profanity_check import predict_prob
+
 from discord.ext import commands, tasks
 from discord import app_commands
 from discord.utils import get
+
 from api_key import bot_token
 
 import lib.leaderboard as leaderboard
@@ -63,6 +67,13 @@ async def on_message(message):
     if message.author.bot:
         return
 
+    if (bad_word_prob := predict_prob([message.content])) > 0.5:
+        await message.delete()
+        # await message.channel.send("No bad words please!")
+        await message.channel.send(
+            f"Probability of bad word: {bad_word_prob[0] * 100:.2f}%"
+        )
+
     if "!sync" in message.content.lower():
         print("Starting sync.")
         await tree.sync()
@@ -96,7 +107,9 @@ async def show_leaderboard(interaction: discord.Interaction):
     )
 
 
-@tree.command(name="show_level", description="Shows your level or the level of a user")
+@tree.command(
+    name="show_level", description="Shows your level or the level of another user"
+)
 @app_commands.describe(member="The user to show the level of, defaults to yourself")
 async def show_level(interaction: discord.Interaction, member: discord.Member = None):
     if member is None:
@@ -104,7 +117,7 @@ async def show_level(interaction: discord.Interaction, member: discord.Member = 
 
     member_info = leaderboard.get_info(interaction.guild.id, member.id)
     await interaction.response.send_message(
-        f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard!"""
+        f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard! """
         + f"""They are level **{member_info["level"]}** and are """
         + f"""**{member_info["xp"]/config["level_up_XP"] * 100:3.2f}%** to the next level!""",
         ephemeral=True,

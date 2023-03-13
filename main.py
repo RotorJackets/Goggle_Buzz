@@ -66,13 +66,19 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    if "!sync" in message.content.lower():
+    if (
+        "!sync" in message.content.lower()
+        and message.author.guild_permissions.administrator
+    ):
         print("Starting sync.")
         await tree.sync()
         await message.channel.send("Synced")
         print("Command tree synced.")
 
-    if "!save" in message.content.lower():
+    if (
+        "!save" in message.content.lower()
+        and message.author.guild_permissions.administrator
+    ):
         leaderboard.save()
         await message.channel.send("Saved")
 
@@ -121,6 +127,40 @@ async def fight_song(interaction: discord.Interaction):
     await interaction.response.send_message(
         random.choice(config["fight_song_quotes"]), ephemeral=False
     )
+
+
+# Moderator Commands
+@tree.command(name="kick", description="Kicks a user")
+@commands.has_permissions(kick_members=True)
+async def kick(
+    interaction: discord.Interaction, member: discord.Member, reason: str = None
+):
+    await interaction.response.send_message(
+        f"""{member.mention} has been kicked.""", ephemeral=True
+    )
+    await member.kick(reason=reason)
+
+
+@tree.command(name="ban", description="Bans a user")
+@commands.has_permissions(ban_members=True)
+async def ban(
+    interaction: discord.Interaction, member: discord.Member, reason: str = None
+):
+    await interaction.response.send_message(
+        f"""{member.mention} has been banned.""", ephemeral=True
+    )
+    await member.ban(reason=reason)
+
+
+@tree.command(name="change_nick", description="Changes a user's nickname")
+@commands.has_permissions(manage_nicknames=True)
+async def change_nick(
+    interaction: discord.Interaction, member: discord.Member, nick: str = None
+):
+    await interaction.response.send_message(
+        f"""{member.mention}'s nickname has been changed to {nick}.""", ephemeral=True
+    )
+    await member.edit(nick=nick)
 
 
 bot_client.run(bot_token)

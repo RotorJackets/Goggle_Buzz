@@ -80,8 +80,8 @@ def get_info(guild_ID: int, user_ID: int):
     user_ID = str(user_ID)
     guild_ID = str(guild_ID)
 
-    get_leaders(guild_ID)
     author_check(guild_ID, user_ID)
+    get_leaders(guild_ID)
     return leaderboard[guild_ID][user_ID]
 
 

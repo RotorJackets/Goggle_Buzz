@@ -9,7 +9,7 @@ with open("leaderboard.json") as f:
 f.close()
 
 
-def author_check(user_ID: int):
+def author_check(guild: int, user_ID: int):
     user_ID = str(user_ID)
 
     if leaderboard.get(user_ID) is None:
@@ -17,7 +17,7 @@ def author_check(user_ID: int):
         leaderboard[user_ID] = {"level": 1, "xp": 0, "last_message": time.time()}
 
 
-def adjust_xp(user_ID: int, xp: int):
+def adjust_xp(guild: int, user_ID: int, xp: int):
     user_ID = str(user_ID)
     level_up = False
 
@@ -36,7 +36,7 @@ def adjust_xp(user_ID: int, xp: int):
         return None
 
 
-def get_leaders():
+def get_leaders(guild: int, ):
     sorted_leaderboard = sorted(
         leaderboard,
         key=lambda x: (leaderboard[x]["level"], leaderboard[x]["xp"]),

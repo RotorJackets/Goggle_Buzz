@@ -1,4 +1,5 @@
 api_key.py
+secret.py
 .idea
 __pycache__
 env

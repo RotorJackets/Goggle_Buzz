@@ -125,3 +125,26 @@ def reset_guild(guild: discord.guild.Guild):
 
     leaderboard[guild_ID] = {}
     save(None)
+
+
+def reset_member(member: discord.member.Member):
+    member_ID = str(member.id)
+    guild_ID = str(member.guild.id)
+
+    if leaderboard.get(guild_ID) is None:
+        leaderboard[guild_ID] = {}
+
+    with open("leaderboard.json.backup", "a") as f:
+        f.writelines(["\n"])
+        f.writelines(["\n", f"{time.time()} | {member_ID} \n"])
+        json.dump(leaderboard[guild_ID][member_ID], f)
+    f.close()
+
+    leaderboard[guild_ID][member_ID] = {
+        "level": 1,
+        "xp": 0,
+        "place": 0,
+        "last_message": time.time(),
+    }
+    
+    save(member.guild)

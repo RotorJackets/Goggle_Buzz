@@ -1,4 +1,5 @@
 config = {
+    "command_prefix": "!",
     "delay_XP_seconds": 30,
     "level_up_XP": 800,
     "random_xp_range": [15, 50],
@@ -26,5 +27,11 @@ config = {
         "Og øl og dram, og øl og dram, og øl og dram, og øl og dram.",
         "https://media.discordapp.net/attachments/604866125209272331/846498885718507530/image0.gif",
         "https://cdn.discordapp.com/attachments/1028015791028846652/1078527921863536772/buzz.mp4",
+        "(╯°□°)╯︵ ┻━┻",
+    ],
+    "cogs": [
+        "cogs.leaderboard.leaderboard",
+        "cogs.moderator.moderator",
+        "cogs.fun.fun",
     ],
 }

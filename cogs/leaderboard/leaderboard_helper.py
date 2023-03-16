@@ -2,13 +2,17 @@ import json
 import time
 import random
 import discord
-from lib.config import config
+
+from lib.config import config as config_main
+
+config = config_main["leaderboard"]
+
 
 # Opening JSON file
 with open("leaderboard.json") as f:
     leaderboard = json.load(f)
 
-debug = True
+debug = False
 
 f.close()
 
@@ -146,5 +150,5 @@ def reset_member(member: discord.member.Member):
         "place": 0,
         "last_message": time.time(),
     }
-    
+
     save(member.guild)

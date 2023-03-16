@@ -3,7 +3,14 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 import cogs.leaderboard.leaderboard_helper as leaderboard_helper
-from lib.config import config
+
+config = {
+    "delay_XP_seconds": 30,
+    "level_up_XP": 800,
+    "random_xp_range": [15, 50],
+    "leaderboard_save_interval_seconds": 25,
+    "leaderboard_delete_after_seconds": 120,
+}
 
 
 class Leaderboard(commands.Cog):

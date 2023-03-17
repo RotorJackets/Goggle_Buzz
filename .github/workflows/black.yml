@@ -1,9 +1,0 @@
-- name: Black Check
-  # You may pin to the exact commit or the version.
-  # uses: jpetrucciani/black-check@62903d1df4dfd1c506bc65491a5edd8e9946d10a
-  uses: jpetrucciani/black-check@23.1.0
-  with:
-    # File or directory to run black on
-    path: # optional, default is .
-    # Optional Black flags (refer to `black --help`)
-    black_flags: # optional, default is 

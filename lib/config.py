@@ -1,5 +1,5 @@
 config = {
-    "command_prefix": "!",
+    "command_prefix": "?",
     "delay_XP_seconds": 30,
     "level_up_XP": 800,
     "random_xp_range": [15, 50],
@@ -33,5 +33,6 @@ config = {
         "cogs.leaderboard.leaderboard",
         "cogs.moderator.moderator",
         "cogs.fun.fun",
+        "cogs.util.util",
     ],
 }

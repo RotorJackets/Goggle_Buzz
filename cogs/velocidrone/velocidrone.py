@@ -12,6 +12,10 @@ class Velocidrone(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        velocidrone_helper.setup()
+
     @app_commands.command(
         name="velocidrone_leaderboard",
         description="Shows the leaderboard",
@@ -44,6 +48,36 @@ class Velocidrone(commands.Cog):
             leaderboard_output,
             ephemeral=False,
             delete_after=config["leaderboard_delete_after_seconds"],
+        )
+
+    @app_commands.command(
+        name="velocidrone_add_whitelist",
+        description="Adds to the velocidrone whitelist",
+    )
+    async def velocidrone_add_whitelist(
+        self,
+        interaction: discord.Interaction,
+        name: str,
+    ):
+        velocidrone_helper.whitelist_add(name)
+        await interaction.response.send_message(
+            f"Added **{name}** to the Velocidrone whitelist",
+            ephemeral=True,
+        )
+
+    @app_commands.command(
+        name="velocidrone_remove_whitelist",
+        description="Removes to the velocidrone whitelist",
+    )
+    async def velocidrone_remove_whitelist(
+        self,
+        interaction: discord.Interaction,
+        name: str,
+    ):
+        velocidrone_helper.whitelist_remove(name)
+        await interaction.response.send_message(
+            f"Removed **{name}** from the Velocidrone whitelist",
+            ephemeral=True,
         )
 
 

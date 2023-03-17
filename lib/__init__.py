@@ -1,4 +1,4 @@
-for file_name in ["velocidrone.json", "leaderboard.json"]:
+for file_name in ["./cogs/velocidrone/jsons/velocidrone.json", "leaderboard.json"]:
     try:
         with open(file_name) as f:
             pass

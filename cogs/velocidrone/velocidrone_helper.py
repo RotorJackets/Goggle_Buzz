@@ -2,13 +2,32 @@ import json
 import time
 import requests
 
-# from lib.config import config as config_main
+from lib.config import config as config_main
 
-# config = config_main["velocidrone"]
+config = config_main["velocidrone"]
 
 debug = True
 
-velocidrone_leaderboard = {}
+
+def setup() -> None:
+    tempDict = {}
+
+    try:
+        with open("./cogs/velocidrone/jsons/velocidrone.json") as f:
+            pass
+        f.close()
+    except IOError as e:
+        f = open("./cogs/velocidrone/jsons/velocidrone.json", "w")
+        f.write('{"whitelist": [],"track_ids": []}')
+        f.close()
+
+    with open("./cogs/velocidrone/jsons/velocidrone.json") as f:
+        tempDict = json.load(f)
+
+    f.close()
+
+    for key in tempDict.keys():
+        config[key] = tempDict[key]
 
 
 def get_leaderboard(url: str) -> list:
@@ -29,9 +48,47 @@ def get_leaderboard(url: str) -> list:
     return velocidrone_leaderboard
 
 
-def save(json_data: dict):
-    # TODO: Make this more efficient and only save the guild that called the function
-    with open("velocidrone.json", "w") as f:
+def whitelist_add(name: str) -> str:
+    if name not in config["whitelist"]:
+        config["whitelist"].append(name)
+        save_config()
+        return name
+    else:
+        return None
+
+
+def whitelist_remove(name: str) -> str:
+    if name in config["whitelist"]:
+        config["whitelist"].remove(name)
+        save_config()
+        print(config)
+        return name
+    else:
+        return None
+
+
+def save_config():
+    tempDict = {}
+    tempDict["whitelist"] = config["whitelist"]
+    tempDict["track_ids"] = config["track_ids"]
+
+    print(tempDict)
+
+    with open(f"./cogs/velocidrone/jsons/velocidrone.json", "w") as f:
+        if debug:
+            json.dump(
+                tempDict,
+                f,
+                indent=4,
+                sort_keys=True,
+                separators=(",", ": "),
+            )
+        else:
+            json.dump(tempDict, f)
+
+
+def save_track(json_data: dict):
+    with open(f"./cogs/velocidrone/jsons/track.json", "w") as f:
         if debug:
             json.dump(
                 json_data,

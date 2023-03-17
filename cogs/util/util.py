@@ -1,6 +1,7 @@
 import discord
-from discord import app_commands
+from discord import app_commands, ChannelType
 from discord.ext import commands
+from discord.utils import get
 
 from lib.config import config
 
@@ -8,6 +9,15 @@ class Util(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        shipping_channel = get(message.guild.text_channels, name = "shipping-sharing")
+        if (message.channel.id == shipping_channel.id):
+            await message.channel.create_thread(name=f"{message.author} is ordering goods",
+                                                type=ChannelType.public_thread)
     @app_commands.command(
         name = "new_order",
         description = "Create a new group order",

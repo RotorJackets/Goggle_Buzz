@@ -29,6 +29,8 @@ def setup() -> None:
     for key in tempDict.keys():
         config[key] = tempDict[key]
 
+    save_track(get_leaderboard("https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16"), 888)
+
 
 def get_leaderboard(url: str) -> list:
     velocidrone_leaderboard = []
@@ -42,8 +44,9 @@ def get_leaderboard(url: str) -> list:
     velocidrone_leaderboard.append(temp_leaderboard[0])
     velocidrone_leaderboard.append([])
 
-    for i in range(min(len(temp_leaderboard[1]), 9), -1, -1):
-        velocidrone_leaderboard[1].append(temp_leaderboard[1][i])
+    for i in temp_leaderboard[1]:
+        if i["playername"] in config["whitelist"]:
+            velocidrone_leaderboard[1].append(i)
 
     return velocidrone_leaderboard
 
@@ -87,8 +90,8 @@ def save_config():
             json.dump(tempDict, f)
 
 
-def save_track(json_data: dict):
-    with open(f"./cogs/velocidrone/jsons/track.json", "w") as f:
+def save_track(json_data: list, track_id: int):
+    with open(f"./cogs/velocidrone/jsons/track_{track_id}.json", "w") as f:
         if debug:
             json.dump(
                 json_data,
@@ -102,9 +105,19 @@ def save_track(json_data: dict):
     f.close()
 
 
+def track_diff(track_id: int):
+    try:
+        with open(f"./cogs/velocidrone/jsons/track_{track_id}.json") as f:
+            pass
+        f.close()
+        return True
+    except IOError as e:
+        return False
+
+
 if __name__ == "__main__":
     # Test the function
     url = "https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16"
     # https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16
     # /velocidrone_leaderboard official:False race_mode:6 track_id:888 version:1.16
-    save(get_leaderboard(url))
+    save_track(get_leaderboard(url), 888)

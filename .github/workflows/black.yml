@@ -20,6 +20,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "Format Python code with psf/black push"
+          labels: black
           commit-message: ":art: Format Python code with psf/black"
           body: |
             There appear to be some python formatting errors in ${{ github.sha }}. This pull request

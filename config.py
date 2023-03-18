@@ -7,6 +7,7 @@ config = {
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
         "cogs.util.util",
+        "cogs.util.join_message",
     ],
     "leaderboard": {
         "level_up_XP": 800,
@@ -24,6 +25,10 @@ config = {
         "save_location": "cogs/velocidrone/json/",
     },
     "util": {
+        "welcome_channel": 1086687733315022918,
+        "new_member_info_channel": 1074547682112192562,
+        "build_help_channel": 1082508044048552056,
+        "introductions_channel": 1086061074215878737,
         "shipping_channel": "shipping-sharing",
         "order_role": "RotorJacket",
     },

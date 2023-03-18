@@ -8,7 +8,7 @@ from lib.config import config as config_main
 config = config_main["leaderboard"]
 
 
-class Leaderboard(commands.Cog):
+class Leaderboard(commands.GroupCog, name="leaderboard"):
     def __init__(self, bot) -> None:
         self.bot = bot
 
@@ -29,10 +29,10 @@ class Leaderboard(commands.Cog):
             )
 
     @app_commands.command(
-        name="show_leaderboard",
+        name="show",
         description="Shows the leaderboard",
     )
-    async def show_leaderboard(self, interaction: discord.Interaction):
+    async def show(self, interaction: discord.Interaction):
         leaders = leaderboard_helper.get_leaders(interaction.guild)
         leaderboard_output = """"""
 
@@ -49,11 +49,11 @@ class Leaderboard(commands.Cog):
         )
 
     @app_commands.command(
-        name="show_level",
+        name="level",
         description="Shows your level or the level of another user",
     )
     @app_commands.describe(member="The user to show the level of, defaults to yourself")
-    async def show_level(
+    async def level(
         self, interaction: discord.Interaction, member: discord.Member = None
     ):
         if member is None:
@@ -68,11 +68,11 @@ class Leaderboard(commands.Cog):
         )
 
     @app_commands.command(
-        name="save_leaderboard",
+        name="save",
         description="Saves the leaderboard",
     )
     @commands.has_permissions(administrator=True)
-    async def save_leaderboard(self, interaction: discord.Interaction):
+    async def save(self, interaction: discord.Interaction):
         leaderboard_helper.save(interaction.guild)
         await interaction.response.send_message(
             f"Leaderboard for **{interaction.guild.name}** has been saved.",
@@ -80,11 +80,11 @@ class Leaderboard(commands.Cog):
         )
 
     @app_commands.command(
-        name="reset_leaderboard",
+        name="reset",
         description="Resets the leaderboard",
     )
     @commands.has_permissions(administrator=True)
-    async def reset_leaderboard(self, interaction: discord.Interaction):
+    async def reset(self, interaction: discord.Interaction):
         leaderboard_helper.reset_guild(interaction.guild)
         await interaction.response.send_message(
             f"Leaderboard for **{interaction.guild.name}** has been reset.",

@@ -21,4 +21,8 @@ config = {
         "leaderboard_channel_id": 1086650100035629096,
         "velocidrone_edit_role": "Moderator",
     },
+    "util": {
+        "shipping_channel": "shipping-sharing",
+        "order_role": "RotorJacket",
+    },
 }

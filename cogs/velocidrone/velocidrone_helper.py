@@ -6,7 +6,7 @@ from lib.config import config as config_main
 
 config = config_main["velocidrone"]
 
-debug = True
+debug = False
 
 
 def setup() -> None:

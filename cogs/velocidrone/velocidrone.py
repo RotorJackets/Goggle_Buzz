@@ -54,7 +54,6 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             delete_after=config["leaderboard_delete_after_seconds"],
         )
 
-
     @app_commands.command(
         name="add_whitelist",
         description="Adds to the velocidrone whitelist",

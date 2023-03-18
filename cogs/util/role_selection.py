@@ -1,14 +1,14 @@
 import discord
-from discord import app_commands, ChannelType
+from discord import app_commands
 from discord.ext import commands
 from discord.utils import get
-from discord.ui import Button
+
 from config import config as config_main
 
 config = config_main["util"]
 
 
-class Welcome(discord.ui.View):
+class RoleOptions(discord.ui.View):
     def __init__(self):
         super().__init__()
         self.value = None
@@ -17,7 +17,7 @@ class Welcome(discord.ui.View):
         label="@ GT",
         style=discord.ButtonStyle.grey,
     )
-    async def welcome1(
+    async def option_one(
         self, interaction: discord.Interaction, button: discord.ui.button
     ):
         rotor = get(interaction.guild.roles, name="RotorJacket")
@@ -35,7 +35,7 @@ class Welcome(discord.ui.View):
         label="Not @ GT",
         style=discord.ButtonStyle.grey,
     )
-    async def welcome2(
+    async def option_2(
         self, interaction: discord.Interaction, button: discord.ui.button
     ):
         friend = get(interaction.guild.roles, name="Friend of Rotorjackets")
@@ -51,48 +51,9 @@ class Welcome(discord.ui.View):
 
 
 @app_commands.guild_only()
-class Util(commands.Cog):
+class RoleSelection(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-
-        shipping_channel = get(message.guild.text_channels, name="shipping-sharing")
-        if message.channel.id == shipping_channel.id:
-            await message.channel.create_thread(
-                name=f"{message.author} is ordering goods",
-                type=ChannelType.public_thread,
-            )
-
-    @app_commands.command(
-        name="new_order",
-        description="Create a new group order",
-    )
-    async def new_order(self, interaction: discord.Interaction, website: str = None):
-        role = get(interaction.guild.roles, name=config["order_role"])
-        if role not in interaction.user.roles:
-            await interaction.response.send_message(
-                "You must be a RotorJacket to create a group order"
-            )
-        else:
-            # TODO: Switch to using channel ID instead of name
-            channel = get(
-                interaction.guild.text_channels, name=config["shipping_channel"]
-            )
-            if website == None:
-                await channel.create_thread(
-                    name=f"{interaction.user} is ordering goods",
-                    type=ChannelType.public_thread,
-                )
-            else:
-                await channel.create_thread(
-                    name=f"{interaction.user} is ordering goods from {website}",
-                    type=ChannelType.public_thread,
-                )
-            await interaction.response.send_message(f"Group order created in {channel}")
 
     @app_commands.command(
         name="intro",
@@ -112,9 +73,9 @@ class Util(commands.Cog):
             "Select your roles with the buttons below",
         )
 
-        view = Welcome()
+        view = RoleOptions()
         await welcome_channel.send(embed=embed, view=view)
 
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(Util(bot))
+    await bot.add_cog(RoleSelection(bot))

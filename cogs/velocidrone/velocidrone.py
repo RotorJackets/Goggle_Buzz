@@ -13,7 +13,7 @@ config = config_main["velocidrone"]
 class Velocidrone(commands.GroupCog, name="velocidrone"):
     def __init__(self, bot) -> None:
         self.bot = bot
-        super().__init__()  # this is now required in this context.
+        super().__init__()
 
     @commands.Cog.listener()
     async def on_ready(self):

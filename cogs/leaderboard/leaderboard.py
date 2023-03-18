@@ -11,6 +11,7 @@ config = config_main["leaderboard"]
 class Leaderboard(commands.GroupCog, name="leaderboard"):
     def __init__(self, bot) -> None:
         self.bot = bot
+        super().__init__()
 
     @commands.Cog.listener()
     async def on_ready(self):

@@ -13,8 +13,14 @@ class JoinMessage(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         channel = self.bot.get_channel(config["welcome_channel"])
+        pfp = member.avatar
+        join_embed = discord.Embed(title="Welcome to RotorJackets!",
+                                   description=f'{member.mention} has joined the server!',
+                                   color=discord.Color.gold())
+        join_embed.set_author(name= f'{member.name}', icon_url=(pfp))
+        join_embed.set_thumbnail(url=(pfp))
         await channel.send(
-            f"Welcome to the server, {member.mention}! Please read the rules and enjoy your stay."
+            embed=join_embed
         )
         embed = discord.Embed(
             title="Welcome to the server!",
@@ -31,7 +37,6 @@ If you are a Georgia Tech student, please become a member on engage.gatech.edu a
         )
 
         await member.send(embed=embed)
-
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(JoinMessage(bot))

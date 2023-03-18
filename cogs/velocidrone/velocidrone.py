@@ -9,6 +9,7 @@ from config import config as config_main
 
 config = config_main["velocidrone"]
 
+
 @app_commands.guild_only()
 class Velocidrone(commands.GroupCog, name="velocidrone"):
     def __init__(self, bot) -> None:

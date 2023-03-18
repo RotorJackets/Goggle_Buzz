@@ -7,6 +7,7 @@ from config import config as config_main
 
 config = config_main["leaderboard"]
 
+
 @app_commands.guild_only()
 class Leaderboard(commands.GroupCog, name="leaderboard"):
     def __init__(self, bot) -> None:

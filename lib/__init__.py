@@ -1,8 +1,9 @@
-try:
-    with open("leaderboard.json") as f:
-        pass
-    f.close()
-except IOError as e:
-    f = open("leaderboard.json", "w")
-    f.write("{}")
-    f.close()
+for file_name in ["./cogs/velocidrone/jsons/velocidrone.json", "leaderboard.json"]:
+    try:
+        with open(file_name) as f:
+            pass
+        f.close()
+    except IOError as e:
+        f = open(file_name, "w")
+        f.write("{}")
+        f.close()

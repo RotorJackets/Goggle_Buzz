@@ -3,7 +3,9 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 import cogs.leaderboard.leaderboard_helper as leaderboard_helper
-from lib.config import config
+from lib.config import config as config_main
+
+config = config_main["leaderboard"]
 
 
 class Leaderboard(commands.Cog):
@@ -43,7 +45,7 @@ class Leaderboard(commands.Cog):
         await interaction.response.send_message(
             leaderboard_output,
             ephemeral=False,
-            delete_after=config["leaderboard_delete_after_seconds"],
+            # delete_after=config["leaderboard_delete_after_seconds"],
         )
 
     @app_commands.command(
@@ -117,7 +119,7 @@ class Leaderboard(commands.Cog):
 
     @tasks.loop(seconds=config["leaderboard_save_interval_seconds"], count=None)
     async def background_leaderboard_save(self):
-        leaderboard_helper.save(config["guilds"])
+        leaderboard_helper.save(config_main["guilds"])
 
 
 async def setup(bot: commands.Bot) -> None:

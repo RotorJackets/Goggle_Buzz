@@ -6,9 +6,6 @@ from lib.config import config
 
 
 class MyBot(commands.Bot):
-    def __init(self):
-        super().__init__()
-
     async def setup_hook(self):
         for ext in config["cogs"]:
             await self.load_extension(ext)

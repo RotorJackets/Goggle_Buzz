@@ -2,7 +2,7 @@ import discord
 from discord import app_commands, ChannelType
 from discord.ext import commands
 from discord.utils import get
-from lib.config import config as config_main
+from config import config as config_main
 
 config = config_main["util"]
 

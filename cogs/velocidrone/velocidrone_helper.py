@@ -2,7 +2,7 @@ import json
 import time
 import requests
 
-from lib.config import config as config_main
+from config import config as config_main
 
 config = config_main["velocidrone"]
 

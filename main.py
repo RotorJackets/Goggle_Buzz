@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from secret import bot_token, application_id
 
-from lib.config import config
+from config import config
 
 
 class MyBot(commands.Bot):

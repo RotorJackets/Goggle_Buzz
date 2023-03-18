@@ -5,7 +5,7 @@ import datetime
 from discord.utils import get
 
 import cogs.velocidrone.velocidrone_helper as velocidrone_helper
-from lib.config import config as config_main
+from config import config as config_main
 
 config = config_main["velocidrone"]
 

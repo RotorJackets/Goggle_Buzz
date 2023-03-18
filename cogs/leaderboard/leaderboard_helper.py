@@ -3,7 +3,7 @@ import time
 import random
 import discord
 
-from lib.config import config as config_main
+from config import config as config_main
 
 config = config_main["leaderboard"]
 

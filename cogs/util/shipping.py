@@ -2,13 +2,14 @@ import discord
 from discord import app_commands, ChannelType
 from discord.ext import commands
 from discord.utils import get
+from discord.ui import Button
 from config import config as config_main
 
 config = config_main["util"]
 
 
 @app_commands.guild_only()
-class Util(commands.Cog):
+class Shipping(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
 
@@ -53,4 +54,4 @@ class Util(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(Util(bot))
+    await bot.add_cog(Shipping(bot))

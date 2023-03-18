@@ -6,8 +6,9 @@ config = {
         "cogs.moderator.moderator",
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
-        "cogs.util.util",
+        "cogs.util.shipping",
         "cogs.util.join_message",
+        "cogs.util.role_selection",
     ],
     "leaderboard": {
         "level_up_XP": 800,

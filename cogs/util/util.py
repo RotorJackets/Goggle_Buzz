@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.utils import get
 from config import config as config_main
 
-config = config_main["util"]
+config = config_main["util"] 
 
 
 class Util(commands.Cog):

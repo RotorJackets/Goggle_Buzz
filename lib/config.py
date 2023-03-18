@@ -16,5 +16,7 @@ config = {
     },
     "velocidrone": {
         "leaderboard_delete_after_seconds": 60,
+        "track_update_interval": 10,
+        "leaderboard_channel_id": 1086650100035629096,
     },
 }

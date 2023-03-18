@@ -14,15 +14,7 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        try:
-            with open("leaderboard.json") as f:
-                pass
-            f.close()
-        except IOError as e:
-            f = open(file_name, "w")
-            f.write("{}")
-            f.close()
-
+        leaderboard_helper.setup()
         self.background_leaderboard_save.start()
 
     @commands.Cog.listener()

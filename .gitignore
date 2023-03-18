@@ -3,4 +3,4 @@ secret.py
 .idea
 __pycache__
 env
-leaderboard.json*
+*.json

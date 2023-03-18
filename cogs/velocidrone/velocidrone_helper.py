@@ -13,15 +13,15 @@ def setup() -> None:
     tempDict = {}
 
     try:
-        with open("./cogs/velocidrone/jsons/velocidrone.json") as f:
+        with open(config["save_location"] + "velocidrone.json") as f:
             pass
         f.close()
     except IOError as e:
-        f = open("./cogs/velocidrone/jsons/velocidrone.json", "w")
+        f = open(config["save_location"] + "velocidrone.json", "w")
         f.write('{"whitelist": [],"track_ids": []}')
         f.close()
 
-    with open("./cogs/velocidrone/jsons/velocidrone.json") as f:
+    with open(config["save_location"] + "velocidrone.json") as f:
         tempDict = json.load(f)
 
     f.close()
@@ -108,7 +108,7 @@ def save_config():
     tempDict["whitelist"] = config["whitelist"]
     tempDict["track_ids"] = config["track_ids"]
 
-    with open(f"./cogs/velocidrone/jsons/velocidrone.json", "w") as f:
+    with open(config["save_location"] + "velocidrone.json", "w") as f:
         if debug:
             json.dump(
                 tempDict,
@@ -130,7 +130,7 @@ def get_url(track_id: int):
 
 
 def save_track(json_data: list, track_id: int):
-    with open(f"./cogs/velocidrone/jsons/track_{track_id}.json", "w") as f:
+    with open(config["save_location"] + f"/track_{track_id}.json", "w") as f:
         if debug:
             json.dump(
                 json_data,
@@ -153,7 +153,7 @@ def get_track_list():
 
     tempTrack = []
     for i in config["track_ids"]:
-        with open(f"./cogs/velocidrone/jsons/track_{i[2]}.json") as f:
+        with open(config["save_location"] + f"/track_{i[2]}.json") as f:
             tempTrack = json.load(f)
         f.close()
         tracks.append(tempTrack[0]["track_name"])
@@ -164,7 +164,7 @@ def get_track_list():
 def get_track(track_id: int):
     track = []
 
-    with open(f"./cogs/velocidrone/jsons/track_{track_id}.json") as f:
+    with open(config["save_location"] + f"/track_{track_id}.json") as f:
         track = json.load(f)
     f.close()
 

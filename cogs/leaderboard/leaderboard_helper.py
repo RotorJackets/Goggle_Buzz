@@ -7,14 +7,26 @@ from config import config as config_main
 
 config = config_main["leaderboard"]
 
+config["save_location"] = config["save_location"] + "leaderboard.json"
 
-# Opening JSON file
-with open("leaderboard.json") as f:
-    leaderboard = json.load(f)
+leaderboard = {}
 
 debug = False
 
-f.close()
+
+def setup():
+    try:
+        with open(config["save_location"]) as f:
+            pass
+        f.close()
+    except IOError as e:
+        f = open(config["save_location"], "w")
+        f.write("{}")
+        f.close()
+
+    with open(config["save_location"]) as f:
+        leaderboard = json.load(f)
+    f.close()
 
 
 def author_check(guild: discord.guild.Guild, member: discord.member.Member):
@@ -101,7 +113,7 @@ def get_info(guild: discord.guild.Guild, member: discord.member.Member):
 
 def save(guild: discord.guild.Guild):
     # TODO: Make this more efficient and only save the guild that called the function
-    with open("leaderboard.json", "w") as f:
+    with open(config["save_location"], "w") as f:
         if debug:
             json.dump(
                 leaderboard,
@@ -121,7 +133,7 @@ def reset_guild(guild: discord.guild.Guild):
     if leaderboard.get(guild_ID) is None:
         leaderboard[guild_ID] = {}
 
-    with open("leaderboard.json.backup", "a") as f:
+    with open(config["save_location"] + ".backup", "a") as f:
         f.writelines(["\n"])
         f.writelines(["\n", f"{time.time()} | {guild_ID} \n"])
         json.dump(leaderboard[guild_ID], f)
@@ -138,7 +150,7 @@ def reset_member(member: discord.member.Member):
     if leaderboard.get(guild_ID) is None:
         leaderboard[guild_ID] = {}
 
-    with open("leaderboard.json.backup", "a") as f:
+    with open(config["save_location"] + ".backup", "a") as f:
         f.writelines(["\n"])
         f.writelines(["\n", f"{time.time()} | {member_ID} \n"])
         json.dump(leaderboard[guild_ID][member_ID], f)

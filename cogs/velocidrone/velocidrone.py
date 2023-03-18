@@ -158,16 +158,19 @@ class Velocidrone(commands.Cog):
         track_diff = velocidrone_helper.track_update()
         if track_diff is not {}:
             for track in track_diff:
-                message = f"""**{track}** has a new leaderboard!"""
+                message = """"""
                 for pilot in track_diff[track].keys():
                     pilot_info = track_diff[track][pilot]
                     message += (
-                        f"""\n- **{pilot}** has set a _{"first" if pilot_info["first_time"] else "new"}_ """
+                        f"""\n**{pilot}** has set a _{"first" if pilot_info["first_time"] else "new"}_ """
                         + f"""time of **{pilot_info["lap_time"]}**!"""
                     )
 
                 await self.bot.get_channel(config["leaderboard_channel_id"]).send(
-                    message
+                    embed=discord.Embed(
+                        title=f"""**{track}** has a new leaderboard!""",
+                        description=message,
+                    )
                 )
 
 

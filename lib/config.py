@@ -6,6 +6,7 @@ config = {
         "cogs.moderator.moderator",
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
+        "cogs.util.util",
     ],
     "leaderboard": {
         "level_up_XP": 800,

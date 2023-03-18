@@ -1,5 +1,8 @@
 name: black-action
 on: [push, pull_request]
+permissions:
+  contents: write 
+  pull-requests: write
 jobs:
   linter_name:
     name: runner / black

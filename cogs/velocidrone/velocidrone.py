@@ -1,7 +1,8 @@
 import discord
-from discord import app_commands, get
+from discord import app_commands
 from discord.ext import commands, tasks
 import datetime
+from discord.utils import get
 
 import cogs.velocidrone.velocidrone_helper as velocidrone_helper
 from lib.config import config as config_main
@@ -9,9 +10,10 @@ from lib.config import config as config_main
 config = config_main["velocidrone"]
 
 
-class Velocidrone(commands.Cog):
+class Velocidrone(commands.GroupCog, name="velocidrone"):
     def __init__(self, bot) -> None:
         self.bot = bot
+        super().__init__()  # this is now required in this context.
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -19,10 +21,10 @@ class Velocidrone(commands.Cog):
         self.background_leaderboard_update.start()
 
     @app_commands.command(
-        name="velocidrone_leaderboard",
+        name="leaderboard",
         description="Shows the leaderboard",
     )
-    async def velocidrone_leaderboard(
+    async def leaderboard(
         self,
         interaction: discord.Interaction,
         official: bool,
@@ -52,12 +54,12 @@ class Velocidrone(commands.Cog):
             delete_after=config["leaderboard_delete_after_seconds"],
         )
 
-    # TODO: Combine these two commands into one
+
     @app_commands.command(
-        name="velocidrone_add_whitelist",
+        name="add_whitelist",
         description="Adds to the velocidrone whitelist",
     )
-    async def velocidrone_add_whitelist(
+    async def add_whitelist(
         self,
         interaction: discord.Interaction,
         name: str,
@@ -65,7 +67,7 @@ class Velocidrone(commands.Cog):
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(
-                f"""You must have the {config["velocidrone_edit_role"]} role to use this command""",
+                f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
                 ephemeral=True,
             )
             return
@@ -77,10 +79,10 @@ class Velocidrone(commands.Cog):
         )
 
     @app_commands.command(
-        name="velocidrone_remove_whitelist",
+        name="remove_whitelist",
         description="Removes to the velocidrone whitelist",
     )
-    async def velocidrone_remove_whitelist(
+    async def remove_whitelist(
         self,
         interaction: discord.Interaction,
         name: str,
@@ -88,7 +90,7 @@ class Velocidrone(commands.Cog):
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(
-                f"""You must have the {config["velocidrone_edit_role"]} role to use this command""",
+                f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
                 ephemeral=True,
             )
             return
@@ -99,12 +101,11 @@ class Velocidrone(commands.Cog):
             ephemeral=True,
         )
 
-    # TODO: Combine these two commands into one
     @app_commands.command(
-        name="velocidrone_add_track_id",
-        description="Adds to the velocidrone track_id",
+        name="add_track",
+        description="Adds to the velocidrone tracks",
     )
-    async def velocidrone_add_track(
+    async def add_track(
         self,
         interaction: discord.Interaction,
         official: bool,
@@ -112,10 +113,11 @@ class Velocidrone(commands.Cog):
         track_id: int,
         version: float,
     ):
+        # TODO: Make race_mode an option instead of an int
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(
-                f"""You must have the {config["velocidrone_edit_role"]} role to use this command""",
+                f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
                 ephemeral=True,
             )
             return
@@ -134,10 +136,10 @@ class Velocidrone(commands.Cog):
             )
 
     @app_commands.command(
-        name="velocidrone_remove_track_id",
-        description="Removes to the velocidrone track_id",
+        name="remove_track",
+        description="Removes to the velocidrone tracks",
     )
-    async def velocidrone_remove_track(
+    async def remove_track(
         self,
         interaction: discord.Interaction,
         track_id: int,
@@ -145,7 +147,7 @@ class Velocidrone(commands.Cog):
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(
-                f"""You must have the {config["velocidrone_edit_role"]} role to use this command""",
+                f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
                 ephemeral=True,
             )
             return
@@ -164,10 +166,10 @@ class Velocidrone(commands.Cog):
             )
 
     @app_commands.command(
-        name="velocidrone_track_list",
+        name="list_tracks",
         description="Lists the tracks",
     )
-    async def velocidrone_track_list(
+    async def list_tracks(
         self,
         interaction: discord.Interaction,
     ):

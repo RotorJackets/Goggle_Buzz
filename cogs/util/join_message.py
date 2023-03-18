@@ -24,11 +24,11 @@ Feel free to throw something in the Introductions channel so we can get to know 
 Check out <#{config["new_member_info_channel"]}> for some helpful tips
 You can ask questions in <#{config["build_help_channel"]}> 
 Introductions are in <#{config["introductions_channel"]}>
+
+If you are a Georgia Tech student, please become a member on engage.gatech.edu and join the club there. https://gatech.campuslabs.com/engage/organization/rotorjackets
 """,
             color=discord.Color.gold(),
         )
-
-        embed.author.name = "Goggle Buzz"
 
         await member.send(embed=embed)
 

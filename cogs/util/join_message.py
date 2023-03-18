@@ -5,7 +5,7 @@ from config import config as config_main
 
 config = config_main["util"]
 
-
+@app_commands.guild_only()
 class JoinMessage(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot

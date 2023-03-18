@@ -7,7 +7,7 @@ from config import config as config_main
 
 config = config_main["leaderboard"]
 
-
+@app_commands.guild_only()
 class Leaderboard(commands.GroupCog, name="leaderboard"):
     def __init__(self, bot) -> None:
         self.bot = bot
@@ -47,7 +47,7 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
         await interaction.response.send_message(
             leaderboard_output,
             ephemeral=False,
-            # delete_after=config["leaderboard_delete_after_seconds"],
+            delete_after=config["leaderboard_delete_after_seconds"],
         )
 
     @app_commands.command(

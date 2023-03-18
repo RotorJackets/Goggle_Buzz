@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
+import datetime
 
 import cogs.velocidrone.velocidrone_helper as velocidrone_helper
 from lib.config import config as config_main
@@ -170,6 +171,10 @@ class Velocidrone(commands.Cog):
                     embed=discord.Embed(
                         title=f"""**{track}** has a new leaderboard!""",
                         description=message,
+                        # TODO: Make this link to the leaderboard
+                        url="https://www.velocidrone.com",
+                        timestamp=datetime.datetime.now(),
+                        color=discord.Color.gold(),
                     )
                 )
 

@@ -190,11 +190,11 @@ def track_update():
             for j in saved_leaderboard[1]:
                 if i["playername"] == j["playername"]:
                     first_time = False
-                    if i["lap_time"] < j["lap_time"]:
+                    if float(i["lap_time"]) < float(j["lap_time"]):
                         track_diff[track_name][i["playername"]] = {
                             "lap_date": i["lap_date"],
                             "lap_time": i["lap_time"],
-                            "lap_diff": i["lap_time"] - j["lap_time"],
+                            "lap_diff": float(i["lap_time"]) - float(j["lap_time"]),
                             "first_time": False,
                         }
             if first_time:

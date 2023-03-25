@@ -5,6 +5,7 @@ from config import config as config_main
 
 config = config_main["util"]
 
+
 @app_commands.guild_only()
 class JoinMessage(commands.Cog):
     def __init__(self, bot) -> None:
@@ -14,14 +15,14 @@ class JoinMessage(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         channel = self.bot.get_channel(config["welcome_channel"])
         pfp = member.avatar
-        join_embed = discord.Embed(title="Welcome to RotorJackets!",
-                                   description=f'{member.mention} has joined the server!',
-                                   color=discord.Color.gold())
-        join_embed.set_author(name= f'{member.name}', icon_url=(pfp))
-        join_embed.set_thumbnail(url=(pfp))
-        await channel.send(
-            embed=join_embed
+        join_embed = discord.Embed(
+            title="Welcome to RotorJackets!",
+            description=f"{member.mention} has joined the server!",
+            color=discord.Color.gold(),
         )
+        join_embed.set_author(name=f"{member.name}", icon_url=(pfp))
+        join_embed.set_thumbnail(url=(pfp))
+        await channel.send(embed=join_embed)
         embed = discord.Embed(
             title="Welcome to the server!",
             description=f"""
@@ -37,6 +38,7 @@ If you are a Georgia Tech student, please become a member on engage.gatech.edu a
         )
 
         await member.send(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(JoinMessage(bot))

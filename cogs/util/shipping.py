@@ -7,6 +7,7 @@ from config import config as config_main
 
 config = config_main["util"]
 
+
 class OrderOptions(discord.ui.View):
     def __init__(self):
         super().__init__()
@@ -22,7 +23,9 @@ class OrderOptions(discord.ui.View):
     ):
         shipping_channel = get(interaction.guild.text_channels, name="shipping-sharing")
         await interaction.channel.edit(locked=True)
-        await shipping_channel.send(f"Goods for {interaction.user}'s group order has been ordered!")
+        await shipping_channel.send(
+            f"Goods for {interaction.user}'s group order has been ordered!"
+        )
         pass
 
     @discord.ui.button(
@@ -31,12 +34,15 @@ class OrderOptions(discord.ui.View):
         emoji="⛔",
     )
     async def option_two(
-            self, interaction: discord.Interaction, button: discord.ui.button
+        self, interaction: discord.Interaction, button: discord.ui.button
     ):
         shipping_channel = get(interaction.guild.text_channels, name="shipping-sharing")
         print(interaction.channel)
         await interaction.channel.edit(locked=True)
-        await shipping_channel.send(f"{interaction.user}'s group order has been canceled!")
+        await shipping_channel.send(
+            f"{interaction.user}'s group order has been canceled!"
+        )
+
 
 @app_commands.guild_only()
 class Shipping(commands.Cog):
@@ -54,9 +60,11 @@ class Shipping(commands.Cog):
                 name=f"{message.author} is ordering goods",
                 type=ChannelType.public_thread,
             )
-            embed = discord.Embed(color=discord.Color.gold(),
-                                  title="Group Order",
-                                  description="Complete your group order with the buttons below")
+            embed = discord.Embed(
+                color=discord.Color.gold(),
+                title="Group Order",
+                description="Complete your group order with the buttons below",
+            )
             view = OrderOptions()
             msg = await thread.send(embed=embed, view=view)
             await msg.pin()
@@ -88,16 +96,14 @@ class Shipping(commands.Cog):
                     type=ChannelType.public_thread,
                 )
             await interaction.response.send_message(f"Group order created in {channel}")
-            embed = discord.Embed(color=discord.Color.gold(),
-                                  title="Group Order",
-                                  description="Complete your group order with the buttons below")
+            embed = discord.Embed(
+                color=discord.Color.gold(),
+                title="Group Order",
+                description="Complete your group order with the buttons below",
+            )
             view = OrderOptions()
             msg = await thread.send(embed=embed, view=view)
             await msg.pin()
-
-
-
-
 
 
 async def setup(bot: commands.Bot) -> None:

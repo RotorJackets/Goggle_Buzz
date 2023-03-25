@@ -24,7 +24,9 @@ class RoleOptions(discord.ui.View):
         rotor = get(interaction.guild.roles, name="RotorJacket")
         if rotor in interaction.user.roles:
             await interaction.user.remove_roles(rotor)
-            await interaction.response.send_message("RotorJacket role removed", ephemeral=True)
+            await interaction.response.send_message(
+                "RotorJacket role removed", ephemeral=True
+            )
         else:
             await interaction.user.add_roles(rotor)
             await interaction.response.send_message(
@@ -43,7 +45,9 @@ class RoleOptions(discord.ui.View):
         friend = get(interaction.guild.roles, name="Friend of Rotorjackets")
         if friend in interaction.user.roles:
             await interaction.user.remove_roles(friend)
-            await interaction.response.send_message("Friend of RotorJackets role removed", ephemeral=True)
+            await interaction.response.send_message(
+                "Friend of RotorJackets role removed", ephemeral=True
+            )
         else:
             await interaction.user.add_roles(friend)
             await interaction.response.send_message(
@@ -54,7 +58,7 @@ class RoleOptions(discord.ui.View):
     @discord.ui.button(
         label="Racer",
         style=discord.ButtonStyle.grey,
-        emoji = "🏁",
+        emoji="🏁",
     )
     async def option_3(
         self, interaction: discord.Interaction, button: discord.ui.button
@@ -62,10 +66,14 @@ class RoleOptions(discord.ui.View):
         racer = get(interaction.guild.roles, name="racer")
         if racer in interaction.user.roles:
             await interaction.user.remove_roles(racer)
-            await interaction.response.send_message("Racer Role removed", ephemeral=True)
+            await interaction.response.send_message(
+                "Racer Role removed", ephemeral=True
+            )
         else:
             await interaction.user.add_roles(racer)
-            await interaction.response.send_message("Pilots arm your quads", ephemeral=True)
+            await interaction.response.send_message(
+                "Pilots arm your quads", ephemeral=True
+            )
 
     @discord.ui.button(
         label="Sim Pings",
@@ -73,7 +81,7 @@ class RoleOptions(discord.ui.View):
         emoji="📺",
     )
     async def option_4(
-            self, interaction: discord.Interaction, button: discord.ui.button
+        self, interaction: discord.Interaction, button: discord.ui.button
     ):
         sim = get(interaction.guild.roles, name="sim")
         if sim in interaction.user.roles:
@@ -81,7 +89,9 @@ class RoleOptions(discord.ui.View):
             await interaction.response.send_message("Sim Role removed", ephemeral=True)
         else:
             await interaction.user.add_roles(sim)
-            await interaction.response.send_message("Update your Velocidrone", ephemeral=True)
+            await interaction.response.send_message(
+                "Update your Velocidrone", ephemeral=True
+            )
 
 
 @app_commands.guild_only()
@@ -92,7 +102,6 @@ class RoleSelection(commands.Cog):
     @app_commands.command(
         name="intro",
         description="Generate new intro message",
-
     )
     async def intro(self, interaction: discord.Interaction):
         welcome_channel = self.bot.get_channel(config["welcome_channel"])

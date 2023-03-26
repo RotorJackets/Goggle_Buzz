@@ -75,13 +75,7 @@ class RoleSelection(commands.Cog):
 
         view = RoleOptions()
         await welcome_channel.send(embed=embed, view=view)
-        await interaction.response.send_message("Sent intro message", 
-                                                
-                                                
-                                                ephemeral=True)
-
-
-
+        await interaction.response.send_message("Sent intro message", ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:

@@ -32,4 +32,4 @@ jobs:
         uses: actions/github-script@v4.2.0
         with:
           script: |
-            core.warning("Code is not formatted correctly. Please merge PR.")
+            core.setNeutral("Code is not formatted correctly. Please merge PR.")

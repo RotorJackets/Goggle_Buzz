@@ -2,7 +2,7 @@
 
 Discord bot for use on the Rotor Jackets Discord server.
 
-# What Can We DO?
+# What Can We Do?
 
 - Velocidrone Leaderboards
 - Guild Leaderboard for Active Members

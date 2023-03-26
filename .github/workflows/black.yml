@@ -27,9 +27,9 @@ jobs:
             uses the [psf/black](https://github.com/psf/black) formatter to fix these issues.
           base: ${{ github.head_ref }} # Creates pull request onto pull request or commit branch
           branch: actions/black
-      - name: Warn If Not Formatted
+      - name: Fail If Not Formatted
         if: steps.action_black.outputs.is_formatted == 'true'
         uses: actions/github-script@v4.2.0
         with:
           script: |
-            core.setNeutral("Code is not formatted correctly. Please merge PR.")
+            core.setFailed("Code is not formatted correctly. Please merge PR.")

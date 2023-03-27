@@ -39,7 +39,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
         leaderboard_output = """"""
 
-        for i in range(min(len(json_data[1]), 9), -1, -1):
+        for i in range(min(len(json_data[1]) - 1, 9), -1, -1):
             leaderboard_output += f"""\nLap Time, _{json_data[1][i]["lap_time"]}_:   **{json_data[1][i]["playername"]}**"""
 
         if len(leaderboard_output) == 0:

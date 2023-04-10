@@ -25,7 +25,9 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         name="leaderboard",
         description="Shows the leaderboard for a specific track",
     )
-    @app_commands.describe(race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)")
+    @app_commands.describe(
+        race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)"
+    )
     @app_commands.choices(
         race_mode=[
             app_commands.Choice(name="1 Lap", value="3"),
@@ -112,7 +114,9 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         name="add_track",
         description="Adds to the velocidrone tracks",
     )
-    @app_commands.describe(race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)")
+    @app_commands.describe(
+        race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)"
+    )
     @app_commands.choices(
         race_mode=[
             app_commands.Choice(name="1 Lap", value="3"),

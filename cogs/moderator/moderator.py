@@ -7,7 +7,7 @@ from discord.ext import commands
 class Moderator(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
-        
+
     @app_commands.command(
         name="change_nick",
         description="Changes a user's nickname",

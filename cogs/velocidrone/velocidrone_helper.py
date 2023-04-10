@@ -17,6 +17,7 @@ def setup() -> None:
             pass
         f.close()
     except IOError as e:
+        print("Velocidrone save file not found . . . Making that shit!")
         f = open(config["save_location"] + "velocidrone.json", "w")
         f.write('{"whitelist": [],"track_ids": []}')
         f.close()
@@ -80,13 +81,18 @@ def track_add(
     # TODO: Return None if ID is already in the list
     track = [official, race_mode, track_id, version]
     if track not in config["track_ids"]:
-        config["track_ids"].append(track)
-        save_config()
-        save_track(
-            get_leaderboard(get_url(track[2])),
-            track[2],
-        )
-        return track_id
+        try:
+            config["track_ids"].append(track)
+            save_config()
+            save_track(
+                get_leaderboard(get_url(track[2])),
+                track[2],
+            )
+            return track_id
+        except Exception as e:
+            config["track_ids"].remove(track)
+            save_config()
+            return None
     else:
         return None
 

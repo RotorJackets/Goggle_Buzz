@@ -15,21 +15,27 @@ debug = False
 
 
 def setup():
+    global leaderboard
+
     try:
         with open(config["save_location"]) as f:
             pass
         f.close()
     except IOError as e:
+        print("Leaderboard save file not found . . . Making that shit!")
         f = open(config["save_location"], "w")
         f.write("{}")
         f.close()
 
     with open(config["save_location"]) as f:
         leaderboard = json.load(f)
+
     f.close()
 
 
 def author_check(guild: discord.guild.Guild, member: discord.member.Member):
+    global leaderboard
+
     member_ID = str(member.id)
     guild_ID = str(guild.id)
 
@@ -54,6 +60,8 @@ def adjust_xp(
         config["random_xp_range"][0], config["random_xp_range"][1]
     ),
 ):
+    global leaderboard
+
     member_ID = str(member.id)
     guild_ID = str(guild.id)
     level_up = False
@@ -77,6 +85,8 @@ def adjust_xp(
 
 
 def get_leaders(guild: discord.guild.Guild):
+    global leaderboard
+
     guild_ID = str(guild.id)
 
     sorted_leaderboard = sorted(
@@ -103,6 +113,8 @@ def get_leaders(guild: discord.guild.Guild):
 
 
 def get_info(guild: discord.guild.Guild, member: discord.member.Member):
+    global leaderboard
+
     member_ID = str(member.id)
     guild_ID = str(guild.id)
 
@@ -112,6 +124,8 @@ def get_info(guild: discord.guild.Guild, member: discord.member.Member):
 
 
 def save(guild: discord.guild.Guild):
+    global leaderboard
+
     # TODO: Make this more efficient and only save the guild that called the function
     with open(config["save_location"], "w") as f:
         if debug:
@@ -128,6 +142,7 @@ def save(guild: discord.guild.Guild):
 
 
 def reset_guild(guild: discord.guild.Guild):
+    global leaderboard
     guild_ID = str(guild.id)
 
     if leaderboard.get(guild_ID) is None:
@@ -144,6 +159,7 @@ def reset_guild(guild: discord.guild.Guild):
 
 
 def reset_member(member: discord.member.Member):
+    global leaderboard
     member_ID = str(member.id)
     guild_ID = str(member.guild.id)
 

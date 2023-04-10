@@ -23,15 +23,22 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
     @app_commands.command(
         name="leaderboard",
-        description="Shows the leaderboard",
+        description="Shows the leaderboard for a specific track",
+    )
+    @app_commands.describe(race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)")
+    @app_commands.choices(
+        race_mode=[
+            app_commands.Choice(name="1 Lap", value="3"),
+            app_commands.Choice(name="3 Lap", value="6"),
+        ]
     )
     async def leaderboard(
         self,
         interaction: discord.Interaction,
         official: bool,
-        race_mode: int,
         track_id: int,
-        version: float,
+        race_mode: app_commands.Choice[str] = "6",
+        version: float = 1.16,
     ):
         json_data = velocidrone_helper.get_leaderboard(
             f"https://www.velocidrone.com/leaderboard_as_json2/{1 if official else 0}/{race_mode}/{track_id}/{version}"
@@ -43,7 +50,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             leaderboard_output += f"""\nLap Time, _{json_data[1][i]["lap_time"]}_:   **{json_data[1][i]["playername"]}**"""
 
         if len(leaderboard_output) == 0:
-            leaderboard_output = "No one is on the leaderboard yet!"
+            leaderboard_output = "\nNo one is on the leaderboard yet!"
 
         leaderboard_output = (
             f"""\nTrack: {json_data[0]["track_name"]}""" + leaderboard_output
@@ -105,15 +112,21 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         name="add_track",
         description="Adds to the velocidrone tracks",
     )
+    @app_commands.describe(race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)")
+    @app_commands.choices(
+        race_mode=[
+            app_commands.Choice(name="1 Lap", value="3"),
+            app_commands.Choice(name="3 Lap", value="6"),
+        ]
+    )
     async def add_track(
         self,
         interaction: discord.Interaction,
         official: bool,
-        race_mode: int,
         track_id: int,
-        version: float,
+        race_mode: app_commands.Choice[str] = "6",
+        version: float = 1.16,
     ):
-        # TODO: Make race_mode an option instead of an int
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(
@@ -125,7 +138,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         track = velocidrone_helper.track_add(official, race_mode, track_id, version)
         if track is None:
             await interaction.response.send_message(
-                f"**{track_id}** is already on the list!",
+                f"**{track_id}** is already on the list or does not exist!",
                 ephemeral=True,
             )
             return

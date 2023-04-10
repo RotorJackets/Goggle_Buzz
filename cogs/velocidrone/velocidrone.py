@@ -1,3 +1,4 @@
+import random
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -20,6 +21,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     async def on_ready(self):
         velocidrone_helper.setup()
         self.background_leaderboard_update.start()
+        self.random_track_daily.start()
 
     @app_commands.command(
         name="leaderboard",
@@ -228,6 +230,54 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                         color=discord.Color.gold(),
                     )
                 )
+
+    @app_commands.command(
+        name="random_track",
+        description="Gets a random track",
+    )
+    async def random_track(
+        self,
+        interaction: discord.Interaction,
+    ):
+        track_id = random.randint(800, 1250)
+        track = velocidrone_helper.track_add(False, "6", track_id, 1.16)
+        if track is not None:
+            leaderboard = velocidrone_helper.get_leaderboard(
+                f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
+            )
+            if leaderboard is not None:
+                await interaction.response.send_message(
+                    embed=discord.Embed(
+                        title=f"""**{leaderboard[0]["track_name"]}** has been added!""",
+                        description=f"""Track ID: **{track}**""",
+                    )
+                )
+        else:
+            await interaction.response.send_message(
+                "There was an error getting a random track, please try again later",
+                ephemeral=True,
+            )
+
+    @tasks.loop(seconds=86400, count=None)
+    async def random_track_daily(self):
+        track_id = random.randint(800, 1250)
+        track = velocidrone_helper.track_add(False, "6", track_id, 1.16)
+        if track is not None:
+            leaderboard = velocidrone_helper.get_leaderboard(
+                f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
+            )
+            if leaderboard is not None:
+                await self.bot.get_channel(config["leaderboard_channel_id"]).send(
+                    embed=discord.Embed(
+                        title=f"""**{leaderboard[0]["track_name"]}** is today's daily track!""",
+                        description=f"""Track ID: **{track}**""",
+                        color=discord.Color.gold(),
+                    )
+                )
+        else:
+            await self.bot.get_channel(config["leaderboard_channel_id"]).send(
+                "There was an error getting a random track, please ask a mod to generate one manually"
+            )
 
 
 async def setup(bot: commands.Bot) -> None:

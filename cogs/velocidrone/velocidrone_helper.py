@@ -37,7 +37,7 @@ def setup() -> None:
 def get_leaderboard(url: str) -> list:
     velocidrone_leaderboard = []
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=100)
     if response.status_code != 200:
         raise Exception("Failed to get leaderboard")
 

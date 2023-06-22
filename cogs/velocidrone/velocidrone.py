@@ -75,7 +75,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         velocidrone_helper.whitelist_add(name)
         await interaction.response.send_message(
             f"Added **{name}** to the Velocidrone whitelist",
-            ephemeral=True,
+            ephemeral=False,
         )
 
     @app_commands.command(
@@ -98,7 +98,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         velocidrone_helper.whitelist_remove(name)
         await interaction.response.send_message(
             f"Removed **{name}** from the Velocidrone whitelist",
-            ephemeral=True,
+            ephemeral=False,
         )
 
     @app_commands.command(
@@ -143,7 +143,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                     color=discord.Color.green(),
                     url=track_url,
                 ),
-                ephemeral=True,
+                ephemeral=False,
             )
 
     @app_commands.command(
@@ -173,7 +173,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         else:
             await interaction.response.send_message(
                 f"Removed **{track}** from the Velocidrone track_id",
-                ephemeral=True,
+                ephemeral=False,
             )
 
     @app_commands.command(
@@ -223,54 +223,6 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                         color=discord.Color.gold(),
                     )
                 )
-
-    # @app_commands.command(
-    #     name="random_track",
-    #     description="Gets a random track",
-    # )
-    # async def random_track(
-    #     self,
-    #     interaction: discord.Interaction,
-    # ):
-    #     track_id = random.randint(800, 1250)
-    #     track = velocidrone_helper.track_add(False, "6", track_id, 1.16)
-    #     if track is not None:
-    #         leaderboard = velocidrone_helper.get_leaderboard(
-    #             f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
-    #         )
-    #         if leaderboard is not None:
-    #             await interaction.response.send_message(
-    #                 embed=discord.Embed(
-    #                     title=f"""**{leaderboard[0]["track_name"]}** has been added!""",
-    #                     description=f"""Track ID: **{track}**""",
-    #                 )
-    #             )
-    #     else:
-    #         await interaction.response.send_message(
-    #             "There was an error getting a random track, please try again later",
-    #             ephemeral=True,
-    #         )
-
-    # @tasks.loop(seconds=86400, count=None)
-    # async def random_track_daily(self):
-    #     track_id = random.randint(800, 1250)
-    #     track = velocidrone_helper.track_add(track_id)
-    #     if track is not None:
-    #         leaderboard = velocidrone_helper.get_leaderboard(
-    #             f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
-    #         )
-    #         if leaderboard is not None:
-    #             await self.bot.get_channel(config["leaderboard_channel_id"]).send(
-    #                 embed=discord.Embed(
-    #                     title=f"""**{leaderboard[0]["track_name"]}** is today's daily track!""",
-    #                     description=f"""Track ID: **{track}**""",
-    #                     color=discord.Color.gold(),
-    #                 )
-    #             )
-    #     else:
-    #         await self.bot.get_channel(config["leaderboard_channel_id"]).send(
-    #             "There was an error getting a random track, please ask a mod to generate one manually"
-    #         )
 
 
 async def setup(bot: commands.Bot) -> None:

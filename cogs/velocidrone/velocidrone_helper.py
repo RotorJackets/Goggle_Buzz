@@ -232,8 +232,6 @@ def track_update():
         saved_leaderboard = get_track(track_id)
         current_leaderboard = get_leaderboard(get_JSON_url(track_id))
 
-        track_name = current_leaderboard[0]["track_name"]
-
         if saved_leaderboard[1] != current_leaderboard[1]:
             save_track(current_leaderboard, track_id)
             track_diff[track_id] = {}
@@ -264,7 +262,8 @@ def track_update():
 
 if __name__ == "__main__":
     # Test the function
-    url = "https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16"
+    # url = "https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16"
     # https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16
     # /velocidrone_leaderboard official:False race_mode:6 track_id:888 version:1.16
-    save_track(get_leaderboard(url), 888)
+    # save_track(get_leaderboard(url), 888)
+    pass

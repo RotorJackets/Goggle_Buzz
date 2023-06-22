@@ -72,7 +72,10 @@ def adjust_xp(
         > config["delay_XP_seconds"]
     ):
         leaderboard[guild_ID][member_ID]["xp"] += xp
-        if leaderboard[guild_ID][member_ID]["xp"] >= config["level_up_XP"]:
+        if (
+            leaderboard[guild_ID][member_ID]["xp"]
+            >= config["level_up_XP"] * leaderboard[guild_ID][member_ID]["level"]
+        ):
             leaderboard[guild_ID][member_ID]["level"] += 1
             leaderboard[guild_ID][member_ID]["xp"] = 0
             level_up = True

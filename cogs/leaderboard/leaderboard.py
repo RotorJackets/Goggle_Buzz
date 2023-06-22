@@ -66,7 +66,7 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
         await interaction.response.send_message(
             f"""**{member.mention}** is in **{member_info["place"]}** place on the leaderboard! """
             + f"""They are level **{member_info["level"]}** and are """
-            + f"""**{member_info["xp"]/config["level_up_XP"] * 100:3.2f}%** to the next level!""",
+            + f"""**{member_info["xp"]/(config["level_up_XP"] * member_info["level"]) * 100:3.2f}%** to the next level!""",
             ephemeral=True,
         )
 

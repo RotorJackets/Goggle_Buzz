@@ -1,3 +1,5 @@
+import asyncio
+import random
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -20,30 +22,19 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     async def on_ready(self):
         velocidrone_helper.setup()
         self.background_leaderboard_update.start()
+        # self.random_track_daily.start()
 
     @app_commands.command(
         name="leaderboard",
         description="Shows the leaderboard for a specific track",
     )
-    @app_commands.describe(
-        race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)"
-    )
-    @app_commands.choices(
-        race_mode=[
-            app_commands.Choice(name="1 Lap", value="3"),
-            app_commands.Choice(name="3 Lap", value="6"),
-        ]
-    )
     async def leaderboard(
         self,
         interaction: discord.Interaction,
-        official: bool,
         track_id: int,
-        race_mode: app_commands.Choice[str] = "6",
-        version: float = 1.16,
     ):
         json_data = velocidrone_helper.get_leaderboard(
-            f"https://www.velocidrone.com/leaderboard_as_json2/{1 if official else 0}/{race_mode}/{track_id}/{version}"
+            f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
         )
 
         leaderboard_output = """"""
@@ -84,7 +75,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         velocidrone_helper.whitelist_add(name)
         await interaction.response.send_message(
             f"Added **{name}** to the Velocidrone whitelist",
-            ephemeral=True,
+            ephemeral=False,
         )
 
     @app_commands.command(
@@ -107,31 +98,22 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         velocidrone_helper.whitelist_remove(name)
         await interaction.response.send_message(
             f"Removed **{name}** from the Velocidrone whitelist",
-            ephemeral=True,
+            ephemeral=False,
         )
 
     @app_commands.command(
         name="add_track",
         description="Adds to the velocidrone tracks",
     )
-    @app_commands.describe(
-        race_mode="Race modes to choose from (3 Lap)", version="Physics version (1.16)"
-    )
-    @app_commands.choices(
-        race_mode=[
-            app_commands.Choice(name="1 Lap", value="3"),
-            app_commands.Choice(name="3 Lap", value="6"),
-        ]
-    )
     async def add_track(
         self,
         interaction: discord.Interaction,
-        official: bool,
-        track_id: int,
-        race_mode: app_commands.Choice[str] = "6",
-        version: float = 1.16,
+        leaderboard_url: str,
     ):
+        track_id = int(leaderboard_url.split("/")[-2])
+
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
+
         if role not in interaction.user.roles:
             await interaction.response.send_message(
                 f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
@@ -139,17 +121,29 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        track = velocidrone_helper.track_add(official, race_mode, track_id, version)
+        track = velocidrone_helper.track_add(track_id)
         if track is None:
             await interaction.response.send_message(
-                f"**{track_id}** is already on the list or does not exist!",
+                f"**{track_id}** does not exist!",
                 ephemeral=True,
             )
             return
         else:
-            await interaction.response.send_message(
-                f"Added **{track_id}** to the Velocidrone track_id",
-                ephemeral=True,
+            await interaction.response.defer(ephemeral=True, thinking=True)
+
+            await asyncio.sleep(3)
+
+            track_url = velocidrone_helper.get_leaderboard_url(track_id)
+
+            await interaction.followup.send(
+                content=None,
+                embed=discord.Embed(
+                    title=f"**{track}**",
+                    description=f"Added _{track}_ to the Velocidrone list\nTrack ID: {track_id}",
+                    color=discord.Color.green(),
+                    url=track_url,
+                ),
+                ephemeral=False,
             )
 
     @app_commands.command(
@@ -172,14 +166,14 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         track = velocidrone_helper.track_remove(track_id)
         if track is None:
             await interaction.response.send_message(
-                f"**{track_id}** is not on the list!",
+                f"**{track}** is not on the list!",
                 ephemeral=True,
             )
             return
         else:
             await interaction.response.send_message(
-                f"Removed **{track_id}** from the Velocidrone track_id",
-                ephemeral=True,
+                f"Removed **{track}** from the Velocidrone track_id",
+                ephemeral=False,
             )
 
     @app_commands.command(
@@ -209,21 +203,22 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     async def background_leaderboard_update(self):
         track_diff = velocidrone_helper.track_update()
         if track_diff is not {}:
-            for track in track_diff:
+            for track_id in track_diff:
                 message = """"""
-                for pilot in track_diff[track].keys():
-                    pilot_info = track_diff[track][pilot]
+                for pilot in track_diff[track_id].keys():
+                    pilot_info = track_diff[track_id][pilot]
                     message += (
                         f"""\n**{pilot}** has set a _{"first" if pilot_info["first_time"] else "new"}_ """
                         + f"""time of **{pilot_info["lap_time"]}**!"""
                     )
 
+                track = velocidrone_helper.get_track(track_id)
+
                 await self.bot.get_channel(config["leaderboard_channel_id"]).send(
                     embed=discord.Embed(
-                        title=f"""**{track}** has a new leaderboard!""",
+                        title=f"""**{track[0]["track_name"]}** has a new leaderboard!""",
                         description=message,
-                        # TODO: Make this link to the leaderboard
-                        url="https://www.velocidrone.com",
+                        url=velocidrone_helper.get_leaderboard_url(track_id),
                         timestamp=datetime.datetime.now(),
                         color=discord.Color.gold(),
                     )

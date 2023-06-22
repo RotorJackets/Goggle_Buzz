@@ -3,5 +3,6 @@ secret.py
 .idea
 __pycache__
 env
+.venv
 *.json
 *.backup

@@ -48,7 +48,7 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
         await interaction.response.send_message(
             leaderboard_output,
             ephemeral=False,
-            delete_after=config["leaderboard_delete_after_seconds"],
+            # delete_after=config["leaderboard_delete_after_seconds"],
         )
 
     @app_commands.command(
@@ -111,7 +111,9 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def sync(self, ctx):
+        print("Syncing")
         await self.bot.tree.sync()
+        print("Synced")
         await ctx.send("Synced")
 
     @commands.command()

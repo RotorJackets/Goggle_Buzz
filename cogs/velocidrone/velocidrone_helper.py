@@ -1,5 +1,4 @@
 import json
-import time
 import requests
 
 from config import config as config_main
@@ -7,6 +6,53 @@ from config import config as config_main
 config = config_main["velocidrone"]
 
 debug = False
+
+
+track_scenes = {
+    "Apartment": 52,
+    "Bando": 30,
+    "Basketball Stadium": 29,
+    "Castle Sneznik": 35,
+    "City": 24,
+    "Coastal": 22,
+    "Combat Practice": 46,
+    "Construction": 47,
+    "Countryside": 12,
+    "Drift Track": 48,
+    "Dynamic Weather": 33,
+    "DynamicPoly": 44,
+    "Empty PolyWorld": 42,
+    "Empty Scene Day": 16,
+    "Empty Scene Night": 17,
+    "Factory": 56,
+    "Football Stadium": 8,
+    "Future Hangar": 40,
+    "Future Hangar Empty": 43,
+    "House": 39,
+    "Indoor GoKart": 31,
+    "Industrial Wasteland": 7,
+    "Island": 41,
+    "Karting Track": 14,
+    "La Mothe": 34,
+    "Large Carpark": 26,
+    "Library": 37,
+    "MiniWarehouse": 51,
+    "NEC Birmingham": 18,
+    "Night Factory 2": 55,
+    "NightClub": 38,
+    "Office": 53,
+    "Office Complex": 54,
+    "PolyBando": 101,
+    "PolyPort": 100,
+    "PolyWorld": 36,
+    "RedValley": 49,
+    "River2": 23,
+    "Slovenia Krvavec": 32,
+    "Sportbar": 50,
+    "Sports Hall": 21,
+    "Subway": 15,
+    "Underground Carpark": 20,
+}
 
 
 def setup() -> None:
@@ -30,14 +76,14 @@ def setup() -> None:
     for key in tempDict.keys():
         config[key] = tempDict[key]
 
-    for track in config["track_ids"]:
-        save_track(get_leaderboard(get_url(track[2])), track[2])
+    for track_id in config["track_ids"]:
+        save_track(get_leaderboard(get_JSON_url(track_id)), track_id)
 
 
 def get_leaderboard(url: str) -> list:
     velocidrone_leaderboard = []
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=100)
     if response.status_code != 200:
         raise Exception("Failed to get leaderboard")
 
@@ -66,47 +112,42 @@ def whitelist_remove(name: str) -> str:
     if name in config["whitelist"]:
         config["whitelist"].remove(name)
         save_config()
-        print(config)
         return name
     else:
         return None
 
 
 def track_add(
-    official: bool,
-    race_mode: int,
     track_id: int,
-    version: float,
-) -> int:
-    # TODO: Return None if ID is already in the list
-    track = [official, race_mode, track_id, version]
-    if track not in config["track_ids"]:
+) -> str:
+    if track_id not in config["track_ids"]:
         try:
-            config["track_ids"].append(track)
+            config["track_ids"].append(track_id)
             save_config()
+            url = get_JSON_url(track_id)
             save_track(
-                get_leaderboard(get_url(track[2])),
-                track[2],
+                get_leaderboard(url),
+                track_id,
             )
-            return track_id
+            return get_track(track_id)[0]["track_name"]
         except Exception as e:
-            config["track_ids"].remove(track)
+            config["track_ids"].remove(track_id)
             save_config()
             return None
     else:
-        return None
+        return get_track(track_id)[0]["track_name"]
 
 
-def track_remove(track_id: int) -> int:
+def track_remove(track_id: int) -> str:
     removed = False
 
     for i in config["track_ids"]:
-        if i[2] == track_id:
+        if i == track_id:
             config["track_ids"].remove(i)
             save_config()
             removed = True
 
-    return track_id if removed else None
+    return get_track(track_id)[0]["track_name"] if removed else None
 
 
 def save_config():
@@ -127,10 +168,18 @@ def save_config():
             json.dump(tempDict, f)
 
 
-def get_url(track_id: int):
-    for i in config["track_ids"]:
-        if i[2] == track_id:
-            return f"https://www.velocidrone.com/leaderboard_as_json2/{1 if i[0] else 0}/{i[1]}/{i[2]}/{i[3]}"
+def get_JSON_url(track_id: int):
+    if track_id in config["track_ids"]:
+        return f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
+
+    return None
+
+
+def get_leaderboard_url(track_id: int):
+    if track_id in config["track_ids"]:
+        track = get_leaderboard(get_JSON_url(track_id))
+        scene = track[0]["scenery_name"]
+        return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
 
     return None
 
@@ -159,7 +208,7 @@ def get_track_list():
 
     tempTrack = []
     for i in config["track_ids"]:
-        with open(config["save_location"] + f"/track_{i[2]}.json") as f:
+        with open(config["save_location"] + f"/track_{i}.json") as f:
             tempTrack = json.load(f)
         f.close()
         tracks.append(tempTrack[0]["track_name"])
@@ -167,7 +216,7 @@ def get_track_list():
     return tracks
 
 
-def get_track(track_id: int):
+def get_track(track_id: int) -> list:
     track = []
 
     with open(config["save_location"] + f"/track_{track_id}.json") as f:
@@ -179,15 +228,13 @@ def get_track(track_id: int):
 
 def track_update():
     track_diff = {}
-    for track in config["track_ids"]:
-        saved_leaderboard = get_track(track[2])
-        current_leaderboard = get_leaderboard(get_url(track[2]))
-
-        track_name = current_leaderboard[0]["track_name"]
+    for track_id in config["track_ids"]:
+        saved_leaderboard = get_track(track_id)
+        current_leaderboard = get_leaderboard(get_JSON_url(track_id))
 
         if saved_leaderboard[1] != current_leaderboard[1]:
-            save_track(current_leaderboard, track[2])
-            track_diff[track_name] = {}
+            save_track(current_leaderboard, track_id)
+            track_diff[track_id] = {}
         else:
             continue
 
@@ -197,14 +244,14 @@ def track_update():
                 if i["playername"] == j["playername"]:
                     first_time = False
                     if float(i["lap_time"]) < float(j["lap_time"]):
-                        track_diff[track_name][i["playername"]] = {
+                        track_diff[track_id][i["playername"]] = {
                             "lap_date": i["lap_date"],
                             "lap_time": i["lap_time"],
                             "lap_diff": float(i["lap_time"]) - float(j["lap_time"]),
                             "first_time": False,
                         }
             if first_time:
-                track_diff[track_name][i["playername"]] = {
+                track_diff[track_id][i["playername"]] = {
                     "lap_date": i["lap_date"],
                     "lap_time": i["lap_time"],
                     "first_time": True,
@@ -215,7 +262,8 @@ def track_update():
 
 if __name__ == "__main__":
     # Test the function
-    url = "https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16"
+    # url = "https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16"
     # https://www.velocidrone.com/leaderboard_as_json2/0/6/888/1.16
     # /velocidrone_leaderboard official:False race_mode:6 track_id:888 version:1.16
-    save_track(get_leaderboard(url), 888)
+    # save_track(get_leaderboard(url), 888)
+    pass

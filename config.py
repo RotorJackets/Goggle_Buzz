@@ -19,7 +19,6 @@ config = {
         "save_location": "cogs/leaderboard/json/",
     },
     "velocidrone": {
-        "leaderboard_delete_after_seconds": 60,
         "track_update_interval": 30,
         "leaderboard_channel_id": 1086650100035629096,
         "velocidrone_edit_role": "Researcher",

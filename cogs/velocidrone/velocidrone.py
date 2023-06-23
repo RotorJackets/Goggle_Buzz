@@ -1,5 +1,4 @@
 import asyncio
-import random
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -22,7 +21,6 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     async def on_ready(self):
         velocidrone_helper.setup()
         self.background_leaderboard_update.start()
-        # self.random_track_daily.start()
 
     @app_commands.command(
         name="leaderboard",
@@ -52,7 +50,6 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         await interaction.response.send_message(
             leaderboard_output,
             ephemeral=False,
-            delete_after=config["leaderboard_delete_after_seconds"],
         )
 
     @app_commands.command(
@@ -196,7 +193,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
         await interaction.response.send_message(
             track_output,
-            ephemeral=True,
+            ephemeral=False,
         )
 
     @tasks.loop(

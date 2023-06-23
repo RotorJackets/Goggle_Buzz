@@ -239,7 +239,6 @@ async def track_update():
     track_diff = {}
     for track_id in config["track_ids"]:
         await asyncio.sleep(10)
-        print(f"Checking track {track_id}")
 
         saved_leaderboard = get_track(track_id)
         current_leaderboard = get_leaderboard(get_JSON_url(track_id))

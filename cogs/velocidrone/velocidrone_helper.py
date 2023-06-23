@@ -1,3 +1,5 @@
+import asyncio
+import time
 import json
 import requests
 
@@ -226,9 +228,19 @@ def get_track(track_id: int) -> list:
     return track
 
 
-def track_update():
+def get_number_of_tracks():
+    try:
+        return len(config["track_ids"])
+    except Exception as e:
+        return 0
+
+
+async def track_update():
     track_diff = {}
     for track_id in config["track_ids"]:
+        await asyncio.sleep(10)
+        print(f"Checking track {track_id}")
+
         saved_leaderboard = get_track(track_id)
         current_leaderboard = get_leaderboard(get_JSON_url(track_id))
 

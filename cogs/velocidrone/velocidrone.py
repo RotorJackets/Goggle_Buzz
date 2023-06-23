@@ -199,9 +199,16 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             ephemeral=True,
         )
 
-    @tasks.loop(seconds=config["track_update_interval"], count=None)
+    @tasks.loop(
+        seconds=max(
+            config["track_update_interval"],
+            (velocidrone_helper.get_number_of_tracks() * 10) + 30,
+        ),
+        count=None,
+    )
     async def background_leaderboard_update(self):
-        track_diff = velocidrone_helper.track_update()
+        track_diff = await velocidrone_helper.track_update()
+
         if track_diff is not {}:
             for track_id in track_diff:
                 message = """"""

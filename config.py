@@ -20,7 +20,7 @@ config = {
     },
     "velocidrone": {
         "leaderboard_delete_after_seconds": 60,
-        "track_update_interval": 10,
+        "track_update_interval": 30,
         "leaderboard_channel_id": 1086650100035629096,
         "velocidrone_edit_role": "Researcher",
         "save_location": "cogs/velocidrone/json/",

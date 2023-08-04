@@ -78,13 +78,13 @@ def setup() -> None:
     for key in tempDict.keys():
         config[key] = tempDict[key]
 
-    # track_ids = []
-    # for guild_id in config["guilds"]:
-    #     for track_id in config["guilds"][str(guild_id)]["track_ids"]:
-    #         track_ids.append(track_id)
+    track_ids = []
+    for guild_id in config["guilds"]:
+        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+            track_ids.append(track_id)
 
-    # for track_id in config["track_ids"]:
-    #     save_track(get_leaderboard(get_JSON_url(track_id)), track_id)
+    for track_id in track_ids:
+        save_track(get_leaderboard_guild(None, get_JSON_url(track_id)), track_id)
 
 
 def get_leaderboard_guild(guild_id: int, url: str) -> list:

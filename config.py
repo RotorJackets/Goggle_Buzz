@@ -20,8 +20,8 @@ config = {
     "velocidrone": {
         "track_update_interval": 30,
         # TODO: Make these not hardcoded, should be setup like levels where each guild is auto added.
-        "leaderboard_guilds": [473695678690885632, 403351447770497026],
-        "leaderboard_channel_id": [1086650100035629096, 1137096847912091658],
+        "leaderboard_guilds": [723199784697200810, 403351447770497026],
+        "leaderboard_channel_id": [1088584397751590994, 1137096847912091658],
         "velocidrone_edit_role": "Researcher",
         "save_location": "cogs/velocidrone/json/",
     },

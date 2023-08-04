@@ -148,6 +148,8 @@ def track_add_guild(guild_id: int, track_id: int):
             config["guilds"][str(guild_id)]["track_ids"].remove(track_id)
             save_config()
             return None
+    else:
+        return get_track(track_id)[0]["track_name"]
 
 
 def track_remove_guild(guild_id: int, track_id: int):

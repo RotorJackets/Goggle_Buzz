@@ -78,74 +78,84 @@ def setup() -> None:
     for key in tempDict.keys():
         config[key] = tempDict[key]
 
-    for track_id in config["track_ids"]:
-        save_track(get_leaderboard(get_JSON_url(track_id)), track_id)
+    # track_ids = []
+    # for guild_id in config["guilds"]:
+    #     for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+    #         track_ids.append(track_id)
+
+    # for track_id in config["track_ids"]:
+    #     save_track(get_leaderboard(get_JSON_url(track_id)), track_id)
 
 
-def get_leaderboard(url: str) -> list:
+def get_leaderboard_guild(guild_id: int, url: str) -> list:
     velocidrone_leaderboard = []
 
     response = requests.get(url, timeout=100)
     if response.status_code != 200:
-        raise Exception("Failed to get leaderboard")
+        raise Exception("Failed to get leaderboard, TRACK ID: ", url)
 
     temp_leaderboard = json.loads(response.text)
 
     velocidrone_leaderboard.append(temp_leaderboard[0])
     velocidrone_leaderboard.append([])
 
+    whitelist = []
+
+    if guild_id is not None:
+        whitelist = config["guilds"][str(guild_id)]["whitelist"]
+    else:
+        for guild_id in config["guilds"]:
+            for name in config["guilds"][str(guild_id)]["whitelist"]:
+                whitelist.append(name)
+
     for i in temp_leaderboard[1]:
-        if i["playername"] in config["whitelist"]:
+        if i["playername"] in whitelist:
             velocidrone_leaderboard[1].append(i)
 
     return velocidrone_leaderboard
 
 
-def whitelist_add(name: str) -> str:
-    if name not in config["whitelist"]:
-        config["whitelist"].append(name)
+def whitelist_add_guild(guild_id: int, name: str) -> str:
+    if name not in config["guilds"][str(guild_id)]["whitelist"]:
+        config["guilds"][str(guild_id)]["whitelist"].append(name)
         save_config()
         return name
     else:
         return None
 
 
-def whitelist_remove(name: str) -> str:
-    if name in config["whitelist"]:
-        config["whitelist"].remove(name)
+def whitelist_remove_guild(guild_id: int, name: str) -> str:
+    if name in config["guilds"][str(guild_id)]["whitelist"]:
+        config["guilds"][str(guild_id)]["whitelist"].remove(name)
         save_config()
         return name
     else:
         return None
 
 
-def track_add(
-    track_id: int,
-) -> str:
-    if track_id not in config["track_ids"]:
+def track_add_guild(guild_id: int, track_id: int):
+    if track_id not in config["guilds"][str(guild_id)]["track_ids"]:
         try:
-            config["track_ids"].append(track_id)
+            config["guilds"][str(guild_id)]["track_ids"].append(track_id)
             save_config()
             url = get_JSON_url(track_id)
             save_track(
-                get_leaderboard(url),
+                get_leaderboard_guild(guild_id, url),
                 track_id,
             )
             return get_track(track_id)[0]["track_name"]
         except Exception as e:
-            config["track_ids"].remove(track_id)
+            config["guilds"][str(guild_id)]["track_ids"].remove(track_id)
             save_config()
             return None
-    else:
-        return get_track(track_id)[0]["track_name"]
 
 
-def track_remove(track_id: int) -> str:
+def track_remove_guild(guild_id: int, track_id: int):
     removed = False
 
-    for i in config["track_ids"]:
+    for i in config["guilds"][str(guild_id)]["track_ids"]:
         if i == track_id:
-            config["track_ids"].remove(i)
+            config["guilds"][str(guild_id)]["track_ids"].remove(i)
             save_config()
             removed = True
 
@@ -154,8 +164,9 @@ def track_remove(track_id: int) -> str:
 
 def save_config():
     tempDict = {}
-    tempDict["whitelist"] = config["whitelist"]
-    tempDict["track_ids"] = config["track_ids"]
+    tempDict["guilds"] = {}
+    for guild_id in config["guilds"]:
+        tempDict["guilds"][str(guild_id)] = config["guilds"][str(guild_id)]
 
     with open(config["save_location"] + "velocidrone.json", "w") as f:
         if debug:
@@ -171,15 +182,21 @@ def save_config():
 
 
 def get_JSON_url(track_id: int):
-    if track_id in config["track_ids"]:
-        return f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
+    return f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
 
-    return None
+
+# TODO: Add a helper function for getting all track ids
 
 
 def get_leaderboard_url(track_id: int):
-    if track_id in config["track_ids"]:
-        track = get_leaderboard(get_JSON_url(track_id))
+    track_ids = []
+
+    for guild_id in config["guilds"]:
+        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+            track_ids.append(track_id)
+
+    if track_id in track_ids:
+        track = get_leaderboard_guild(473695678690885632, get_JSON_url(track_id))
         scene = track[0]["scenery_name"]
         return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
 
@@ -205,11 +222,11 @@ def get_whitelist():
     return config["whitelist"]
 
 
-def get_track_list():
+def get_track_list_guild(guild_id: int):
     tracks = []
 
     tempTrack = []
-    for i in config["track_ids"]:
+    for i in config["guilds"][str(guild_id)]["track_ids"]:
         with open(config["save_location"] + f"/track_{i}.json") as f:
             tempTrack = json.load(f)
         f.close()
@@ -237,11 +254,17 @@ def get_number_of_tracks():
 
 async def track_update():
     track_diff = {}
-    for track_id in config["track_ids"]:
+    track_ids = []
+
+    for guild_id in config["guilds"]:
+        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+            track_ids.append(track_id)
+
+    for track_id in track_ids:
         await asyncio.sleep(10)
 
         saved_leaderboard = get_track(track_id)
-        current_leaderboard = get_leaderboard(get_JSON_url(track_id))
+        current_leaderboard = get_leaderboard_guild(None, get_JSON_url(track_id))
 
         if saved_leaderboard[1] != current_leaderboard[1]:
             save_track(current_leaderboard, track_id)
@@ -269,6 +292,18 @@ async def track_update():
                 }
 
     return track_diff
+
+
+def get_guild_track_list(guild_id: int):
+    return config["guilds"][str(guild_id)]["track_ids"]
+
+
+def get_guild_whitelist(guild_id: int):
+    return config["guilds"][str(guild_id)]["whitelist"]
+
+
+def get_guild_leaderboard_channel(guild_id: int) -> int:
+    return config["guilds"][str(guild_id)]["leaderboard_channel_id"]
 
 
 if __name__ == "__main__":

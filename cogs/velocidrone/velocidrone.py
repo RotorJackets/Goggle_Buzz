@@ -31,8 +31,9 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         interaction: discord.Interaction,
         track_id: int,
     ):
-        json_data = velocidrone_helper.get_leaderboard(
-            f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
+        json_data = velocidrone_helper.get_leaderboard_guild(
+            interaction.guild.id,
+            f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}",
         )
 
         leaderboard_output = """"""
@@ -69,7 +70,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        velocidrone_helper.whitelist_add(name)
+        velocidrone_helper.whitelist_add_guild(interaction.guild.id, name)
         await interaction.response.send_message(
             f"Added **{name}** to the Velocidrone whitelist",
             ephemeral=False,
@@ -92,7 +93,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        velocidrone_helper.whitelist_remove(name)
+        velocidrone_helper.whitelist_remove_guild(interaction.guild.id, name)
         await interaction.response.send_message(
             f"Removed **{name}** from the Velocidrone whitelist",
             ephemeral=False,
@@ -118,7 +119,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        track = velocidrone_helper.track_add(track_id)
+        track = velocidrone_helper.track_add_guild(interaction.guild.id, track_id)
         if track is None:
             await interaction.response.send_message(
                 f"**{track_id}** does not exist!",
@@ -160,7 +161,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        track = velocidrone_helper.track_remove(track_id)
+        track = velocidrone_helper.track_remove_guild(interaction.guild.id, track_id)
         if track is None:
             await interaction.response.send_message(
                 f"**{track}** is not on the list!",
@@ -181,7 +182,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         self,
         interaction: discord.Interaction,
     ):
-        track_list = velocidrone_helper.get_track_list()
+        track_list = velocidrone_helper.get_track_list_guild(interaction.guild.id)
 
         track_output = """"""
 
@@ -207,26 +208,39 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         track_diff = await velocidrone_helper.track_update()
 
         if track_diff is not {}:
-            for track_id in track_diff:
-                message = """"""
-                for pilot in track_diff[track_id].keys():
-                    pilot_info = track_diff[track_id][pilot]
-                    message += (
-                        f"""\n**{pilot}** has set a _{"first" if pilot_info["first_time"] else "new"}_ """
-                        + f"""time of **{pilot_info["lap_time"]}**!"""
-                    )
+            for guild_id in config["leaderboard_guilds"]:
+                for track_id in track_diff:
+                    if track_id not in velocidrone_helper.get_guild_track_list(
+                        guild_id
+                    ):
+                        continue
 
-                track = velocidrone_helper.get_track(track_id)
+                    message = """"""
+                    for pilot in track_diff[track_id].keys():
+                        if pilot not in velocidrone_helper.get_guild_whitelist(
+                            guild_id
+                        ):
+                            continue
 
-                await self.bot.get_channel(config["leaderboard_channel_id"]).send(
-                    embed=discord.Embed(
-                        title=f"""**{track[0]["track_name"]}** has a new leaderboard!""",
-                        description=message,
-                        url=velocidrone_helper.get_leaderboard_url(track_id),
-                        timestamp=datetime.datetime.now(),
-                        color=discord.Color.gold(),
-                    )
-                )
+                        pilot_info = track_diff[track_id][pilot]
+                        message += (
+                            f"""\n**{pilot}** has set a _{"first" if pilot_info["first_time"] else "new"}_ """
+                            + f"""time of **{pilot_info["lap_time"]}**!"""
+                        )
+
+                    track = velocidrone_helper.get_track(track_id)
+                    if message != """""":
+                        await self.bot.get_channel(
+                            velocidrone_helper.get_guild_leaderboard_channel(guild_id)
+                        ).send(
+                            embed=discord.Embed(
+                                title=f"""**{track[0]["track_name"]}** has a new leaderboard!""",
+                                description=message,
+                                url=velocidrone_helper.get_leaderboard_url(track_id),
+                                timestamp=datetime.datetime.now(),
+                                color=discord.Color.gold(),
+                            )
+                        )
 
 
 async def setup(bot: commands.Bot) -> None:

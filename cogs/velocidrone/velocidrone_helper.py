@@ -196,7 +196,8 @@ def get_leaderboard_url(track_id: int):
             track_ids.append(track_id)
 
     if track_id in track_ids:
-        track = get_leaderboard_guild(473695678690885632, get_JSON_url(track_id))
+        # TODO: Make this not hardcoded
+        track = get_leaderboard_guild(723199784697200810, get_JSON_url(track_id))
         scene = track[0]["scenery_name"]
         return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
 

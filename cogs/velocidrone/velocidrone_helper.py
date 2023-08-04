@@ -187,7 +187,7 @@ def get_JSON_url(track_id: int):
     return f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
 
 
-# TODO: Add a helper function for getting all track ids
+# TODO: Add a helper function for getting all track ids also make it a set instead of just appending
 
 
 def get_leaderboard_url(track_id: int):
@@ -250,7 +250,13 @@ def get_track(track_id: int) -> list:
 
 def get_number_of_tracks():
     try:
-        return len(config["track_ids"])
+        track_ids = []
+        for guild_id in config["guilds"]:
+            for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+                track_ids.append(track_id)
+
+        return len(track_ids)
+
     except Exception as e:
         return 0
 

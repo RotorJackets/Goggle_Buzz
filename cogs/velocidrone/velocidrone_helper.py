@@ -298,6 +298,17 @@ async def track_update():
     return track_diff
 
 
+def reset_velocidrone_guild(guild_id: int, whitelist: bool, track_ids: bool):
+    if whitelist:
+        config["guilds"][str(guild_id)]["whitelist"] = []
+    if track_ids:
+        config["guilds"][str(guild_id)]["track_ids"] = []
+
+    save_config()
+
+    return True
+
+
 def get_guild_track_list(guild_id: int):
     return config["guilds"][str(guild_id)]["track_ids"]
 

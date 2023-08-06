@@ -251,7 +251,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         interaction: discord.Interaction,
     ):
         track_list = velocidrone_helper.get_track_and_ID_list_guild(
-            interaction.guild.id
+            interaction.guild.id,
         )
 
         track_output = """"""
@@ -287,6 +287,25 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
         await interaction.response.send_message(
             track_output,
+            ephemeral=False,
+        )
+
+    @app_commands.command(
+        name="reset_velocidrone",
+        description="Reset WhiteList and Track List",
+    )
+    async def reset_velocidrone(
+        self,
+        interaction: discord.Interaction,
+        whitelist: bool = False,
+        tracks: bool = False,
+    ):
+        velocidrone_helper.reset_velocidrone_guild(
+            interaction.guild.id, whitelist, tracks
+        )
+
+        await interaction.response.send_message(
+            "DONE!",
             ephemeral=False,
         )
 

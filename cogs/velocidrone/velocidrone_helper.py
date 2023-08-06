@@ -78,10 +78,7 @@ def setup() -> None:
     for key in tempDict.keys():
         config[key] = tempDict[key]
 
-    track_ids = []
-    for guild_id in config["guilds"]:
-        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
-            track_ids.append(track_id)
+    track_ids = get_all_tracks()
 
     for track_id in track_ids:
         save_track(get_leaderboard_guild(None, get_JSON_url(track_id)), track_id)
@@ -191,11 +188,7 @@ def get_JSON_url(track_id: int):
 
 
 def get_leaderboard_url(track_id: int):
-    track_ids = []
-
-    for guild_id in config["guilds"]:
-        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
-            track_ids.append(track_id)
+    track_ids = get_all_tracks()
 
     if track_id in track_ids:
         # TODO: Make this not hardcoded
@@ -250,10 +243,7 @@ def get_track(track_id: int) -> list:
 
 def get_number_of_tracks():
     try:
-        track_ids = []
-        for guild_id in config["guilds"]:
-            for track_id in config["guilds"][str(guild_id)]["track_ids"]:
-                track_ids.append(track_id)
+        track_ids = get_all_tracks()
 
         return len(track_ids)
 
@@ -263,11 +253,7 @@ def get_number_of_tracks():
 
 async def track_update():
     track_diff = {}
-    track_ids = []
-
-    for guild_id in config["guilds"]:
-        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
-            track_ids.append(track_id)
+    track_ids = get_all_tracks()
 
     for track_id in track_ids:
         await asyncio.sleep(10)
@@ -313,6 +299,16 @@ def get_guild_whitelist(guild_id: int):
 
 def get_guild_leaderboard_channel(guild_id: int) -> int:
     return config["guilds"][str(guild_id)]["leaderboard_channel_id"]
+
+
+def get_all_tracks() -> set:
+    track_ids = set()
+
+    for guild_id in config["guilds"]:
+        for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+            track_ids.add(track_id)
+
+    return track_ids
 
 
 if __name__ == "__main__":

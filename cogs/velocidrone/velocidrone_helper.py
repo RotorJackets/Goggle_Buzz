@@ -226,6 +226,7 @@ def get_track_list_guild(guild_id: int):
 
     return tracks
 
+
 def get_track_and_ID_list_guild(guild_id: int):
     tracks = []
 
@@ -237,6 +238,7 @@ def get_track_and_ID_list_guild(guild_id: int):
         tracks.append((tempTrack[0]["track_name"], i))
 
     return tracks
+
 
 def get_track(track_id: int) -> list:
     track = []

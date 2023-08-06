@@ -14,20 +14,23 @@ config = config_main["velocidrone"]
 class Removal(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=30)
-    remove : bool = None
-    @discord.ui.button(label="Remove",
-                       style=discord.ButtonStyle.danger,
-                       custom_id="remove")
+
+    remove: bool = None
+
+    @discord.ui.button(
+        label="Remove", style=discord.ButtonStyle.danger, custom_id="remove"
+    )
     async def remove(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.remove = True
         button.disabled = True
-        button1 = [i for i in self.children if i.custom_id=="cancel"][0]
+        button1 = [i for i in self.children if i.custom_id == "cancel"][0]
         button1.disabled = True
         await interaction.response.edit_message(view=self)
         self.stop()
-    @discord.ui.button(label="Cancel",
-                       style=discord.ButtonStyle.grey,
-                       custom_id="cancel")
+
+    @discord.ui.button(
+        label="Cancel", style=discord.ButtonStyle.grey, custom_id="cancel"
+    )
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.remove = False
         button.disabled = True
@@ -42,12 +45,13 @@ class Removal(discord.ui.View):
         button = [i for i in self.children if i.custom_id == "cancel"][0]
         button.disabled = True
         await self.message.edit(view=self)
+
+
 @app_commands.guild_only()
 class Velocidrone(commands.GroupCog, name="velocidrone"):
     def __init__(self, bot) -> None:
         self.bot = bot
         super().__init__()
-
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -221,7 +225,9 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         if timeout is True:
             await message.edit(content=f"Timed out")
         elif view.remove is True:
-            track = velocidrone_helper.track_remove_guild(interaction.guild.id, track_id)
+            track = velocidrone_helper.track_remove_guild(
+                interaction.guild.id, track_id
+            )
             if track is None:
                 await message.edit(
                     content=f"**{track}** is not on the list!",

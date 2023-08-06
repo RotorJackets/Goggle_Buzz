@@ -197,6 +197,29 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             ephemeral=False,
         )
 
+    @app_commands.command(
+        name="list_tracks",
+        description="Lists the tracks",
+    )
+    async def list_whitelist(
+        self,
+        interaction: discord.Interaction,
+    ):
+        whitelist = velocidrone_helper.get_guild_whitelist(interaction.guild.id)
+
+        track_output = """"""
+
+        for name in whitelist:
+            track_output += f"""\n**{name}**"""
+
+        if len(track_output) == 0:
+            track_output = "No people are on the list yet!"
+
+        await interaction.response.send_message(
+            track_output,
+            ephemeral=False,
+        )
+
     @tasks.loop(
         seconds=config["track_update_interval"],
         count=None,

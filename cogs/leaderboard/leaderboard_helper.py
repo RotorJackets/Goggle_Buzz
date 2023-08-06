@@ -129,7 +129,6 @@ def get_info(guild: discord.guild.Guild, member: discord.member.Member):
 def save(guild: discord.guild.Guild):
     global leaderboard
 
-    # TODO: Make this more efficient and only save the guild that called the function
     with open(config["save_location"], "w") as f:
         if debug:
             json.dump(

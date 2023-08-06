@@ -3,11 +3,9 @@ config = {
     "guilds": [473695678690885632, 723199784697200810, 403351447770497026],
     "cogs": [
         "cogs.leaderboard.leaderboard",
-        "cogs.moderator.moderator",
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
         "cogs.util.join_message",
-        "cogs.util.role_selection",
     ],
     "leaderboard": {
         "whitelisted_guilds": [723199784697200810],
@@ -22,8 +20,6 @@ config = {
         "track_update_interval": 200,
         # TODO: Make these not hardcoded, should be setup like levels where each guild is auto added.
         "leaderboard_guilds": [723199784697200810, 403351447770497026],
-        # TODO: I believe this is unused, remove it
-        "leaderboard_channel_id": [1088584397751590994, 1137096847912091658],
         "velocidrone_edit_role": "Researcher",
         "save_location": "cogs/velocidrone/json/",
     },

@@ -21,6 +21,9 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if message.guild not in config["whitelisted_guilds"]:
+            return
+
         if message.author.bot:
             return
 

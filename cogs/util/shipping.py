@@ -8,6 +8,7 @@ from config import config as config_main
 config = config_main["util"]
 
 
+# FIXME: REMOVE THIS FROM THE CODE BASE
 @app_commands.guild_only()
 class Shipping(commands.Cog):
     def __init__(self, bot) -> None:

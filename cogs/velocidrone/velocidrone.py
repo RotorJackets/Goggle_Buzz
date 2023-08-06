@@ -250,12 +250,14 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         self,
         interaction: discord.Interaction,
     ):
-        track_list = velocidrone_helper.get_track_list_guild(interaction.guild.id)
+        track_list = velocidrone_helper.get_track_and_ID_list_guild(
+            interaction.guild.id
+        )
 
         track_output = """"""
 
         for track in track_list:
-            track_output += f"""\n**{track}**"""
+            track_output += f"""\n**`{track[1]}`\t{track[0]}**"""
 
         if len(track_output) == 0:
             track_output = "No tracks are on the list yet!"

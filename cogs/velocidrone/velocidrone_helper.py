@@ -226,6 +226,17 @@ def get_track_list_guild(guild_id: int):
 
     return tracks
 
+def get_track_and_ID_list_guild(guild_id: int):
+    tracks = []
+
+    tempTrack = []
+    for i in config["guilds"][str(guild_id)]["track_ids"]:
+        with open(config["save_location"] + f"/track_{i}.json") as f:
+            tempTrack = json.load(f)
+        f.close()
+        tracks.append((tempTrack[0]["track_name"], i))
+
+    return tracks
 
 def get_track(track_id: int) -> list:
     track = []

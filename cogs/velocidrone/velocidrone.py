@@ -244,7 +244,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
     @app_commands.command(
         name="list_tracks",
-        description="Lists the tracks",
+        description="Lists the current guild's tracks",
     )
     async def list_tracks(
         self,
@@ -266,8 +266,8 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         )
 
     @app_commands.command(
-        name="list_tracks",
-        description="Lists the tracks",
+        name="list_whitelist",
+        description="Lists the current guild's whitelist",
     )
     async def list_whitelist(
         self,

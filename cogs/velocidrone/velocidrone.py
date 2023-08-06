@@ -198,13 +198,14 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         )
 
     @tasks.loop(
-        seconds=max(
-            config["track_update_interval"],
-            (velocidrone_helper.get_number_of_tracks() * 10) + 30,
-        ),
+        seconds=config["track_update_interval"],
         count=None,
     )
     async def background_leaderboard_update(self):
+        Velocidrone.background_leaderboard_update.change_interval(
+            seconds=(velocidrone_helper.get_number_of_tracks() * 10) + 30
+        )
+
         track_diff = await velocidrone_helper.track_update()
 
         if track_diff is not {}:

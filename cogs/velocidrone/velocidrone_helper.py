@@ -255,9 +255,11 @@ def get_number_of_tracks():
             for track_id in config["guilds"][str(guild_id)]["track_ids"]:
                 track_ids.append(track_id)
 
+        print("Delay: ", len(track_ids))
         return len(track_ids)
 
     except Exception as e:
+        print(e)
         return 0
 
 

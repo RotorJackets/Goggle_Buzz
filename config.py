@@ -10,6 +10,7 @@ config = {
         "cogs.util.role_selection",
     ],
     "leaderboard": {
+        "whitelisted_guilds": [723199784697200810],
         "level_up_XP": 800,
         "random_xp_range": [15, 50],
         "delay_XP_seconds": 0,
@@ -21,6 +22,7 @@ config = {
         "track_update_interval": 200,
         # TODO: Make these not hardcoded, should be setup like levels where each guild is auto added.
         "leaderboard_guilds": [723199784697200810, 403351447770497026],
+        # TODO: I believe this is unused, remove it
         "leaderboard_channel_id": [1088584397751590994, 1137096847912091658],
         "velocidrone_edit_role": "Researcher",
         "save_location": "cogs/velocidrone/json/",

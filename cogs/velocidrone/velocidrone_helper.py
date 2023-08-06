@@ -184,15 +184,11 @@ def get_JSON_url(track_id: int):
     return f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
 
 
-# TODO: Add a helper function for getting all track ids also make it a set instead of just appending
-
-
 def get_leaderboard_url(track_id: int):
     track_ids = get_all_tracks()
 
     if track_id in track_ids:
-        # TODO: Make this not hardcoded
-        track = get_leaderboard_guild(723199784697200810, get_JSON_url(track_id))
+        track = get_leaderboard_guild(None, get_JSON_url(track_id))
         scene = track[0]["scenery_name"]
         return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
 

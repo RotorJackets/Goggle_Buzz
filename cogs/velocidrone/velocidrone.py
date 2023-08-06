@@ -11,11 +11,43 @@ from config import config as config_main
 config = config_main["velocidrone"]
 
 
+class Removal(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=30)
+    remove : bool = None
+    @discord.ui.button(label="Remove",
+                       style=discord.ButtonStyle.danger,
+                       custom_id="remove")
+    async def remove(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.remove = True
+        button.disabled = True
+        button1 = [i for i in self.children if i.custom_id=="cancel"][0]
+        button1.disabled = True
+        await interaction.response.edit_message(view=self)
+        self.stop()
+    @discord.ui.button(label="Cancel",
+                       style=discord.ButtonStyle.grey,
+                       custom_id="cancel")
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.remove = False
+        button.disabled = True
+        button1 = [i for i in self.children if i.custom_id == "remove"][0]
+        button1.disabled = True
+        await interaction.response.edit_message(view=self)
+        self.stop()
+
+    async def on_timeout(self):
+        button = [i for i in self.children if i.custom_id == "remove"][0]
+        button.disabled = True
+        button = [i for i in self.children if i.custom_id == "cancel"][0]
+        button.disabled = True
+        await self.message.edit(view=self)
 @app_commands.guild_only()
 class Velocidrone(commands.GroupCog, name="velocidrone"):
     def __init__(self, bot) -> None:
         self.bot = bot
         super().__init__()
+
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -93,11 +125,27 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        velocidrone_helper.whitelist_remove_guild(interaction.guild.id, name)
+        view = Removal()
         await interaction.response.send_message(
-            f"Removed **{name}** from the Velocidrone whitelist",
-            ephemeral=False,
+            content=f"Are you sure you want to remove **{name}** from the Velocidrone whitelist?",
+            view=view,
         )
+
+        message = await interaction.original_response()
+        view.message = message
+        timeout = await view.wait()
+
+        if timeout is True:
+            await message.edit(content=f"Timed out")
+        elif view.remove is True:
+            velocidrone_helper.whitelist_remove_guild(interaction.guild.id, name)
+            await message.edit(
+                content=f"Removed **{name}** from the Velocidrone whitelist",
+            )
+        elif view.remove is False:
+            await message.edit(
+                content="Cancelled",
+            )
 
     @app_commands.command(
         name="add_track",
@@ -160,18 +208,32 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                 ephemeral=True,
             )
             return
+        view = Removal()
+        await interaction.response.send_message(
+            content=f"Are you sure you want to remove Track ID: **{track_id}** from the Velocidrone track list?",
+            view=view,
+        )
 
-        track = velocidrone_helper.track_remove_guild(interaction.guild.id, track_id)
-        if track is None:
-            await interaction.response.send_message(
-                f"**{track}** is not on the list!",
-                ephemeral=True,
-            )
-            return
-        else:
-            await interaction.response.send_message(
-                f"Removed **{track}** from the Velocidrone track_id",
-                ephemeral=False,
+        message = await interaction.original_response()
+        view.message = message
+        timeout = await view.wait()
+
+        if timeout is True:
+            await message.edit(content=f"Timed out")
+        elif view.remove is True:
+            track = velocidrone_helper.track_remove_guild(interaction.guild.id, track_id)
+            if track is None:
+                await message.edit(
+                    content=f"**{track}** is not on the list!",
+                )
+                return
+            else:
+                await message.edit(
+                    content=f"Removed **{track}** from the Velocidrone track_id",
+                )
+        elif view.remove is False:
+            await message.edit(
+                content="Cancelled",
             )
 
     @app_commands.command(

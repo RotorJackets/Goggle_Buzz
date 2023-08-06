@@ -180,6 +180,27 @@ def save_config():
             json.dump(tempDict, f)
 
 
+def save_config_backup():
+    tempDict = {}
+    tempDict["guilds"] = {}
+    for guild_id in config["guilds"]:
+        tempDict["guilds"][str(guild_id)] = config["guilds"][str(guild_id)]
+
+    with open(config["save_location"] + f"velocidrone_{time.time()}.json", "w") as f:
+        if debug:
+            json.dump(
+                tempDict,
+                f,
+                indent=4,
+                sort_keys=True,
+                separators=(",", ": "),
+            )
+        else:
+            json.dump(tempDict, f)
+
+    f.close()
+
+
 def get_JSON_url(track_id: int):
     return f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}"
 
@@ -298,12 +319,16 @@ async def track_update():
     return track_diff
 
 
-def reset_velocidrone_guild(guild_id: int, whitelist: bool, track_ids: bool):
+def reset_velocidrone_guild(guild_id: int, whitelist: bool, track_ids: bool) -> bool:
+    if not whitelist and not track_ids:
+        return False
+
     if whitelist:
         config["guilds"][str(guild_id)]["whitelist"] = []
     if track_ids:
         config["guilds"][str(guild_id)]["track_ids"] = []
 
+    save_config_backup()
     save_config()
 
     return True

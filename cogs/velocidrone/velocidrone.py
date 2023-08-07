@@ -55,8 +55,9 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        velocidrone_helper.setup()
+        velocidrone_helper.setup(self.bot.guilds)
         self.background_leaderboard_update.start()
+        print("Velocidrone cog ready")
 
     @app_commands.command(
         name="leaderboard",
@@ -67,7 +68,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         interaction: discord.Interaction,
         track_id: int,
     ):
-        json_data = velocidrone_helper.get_leaderboard_guild(
+        json_data = velocidrone_helper.get_leaderboard(
             interaction.guild.id,
             f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}",
         )
@@ -106,7 +107,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        velocidrone_helper.whitelist_add_guild(interaction.guild.id, name)
+        velocidrone_helper.whitelist_add(interaction.guild.id, name)
         await interaction.response.send_message(
             f"Added **{name}** to the Velocidrone whitelist",
             ephemeral=False,
@@ -142,7 +143,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         if timeout is True:
             await message.edit(content=f"Timed out")
         elif view.remove is True:
-            velocidrone_helper.whitelist_remove_guild(interaction.guild.id, name)
+            velocidrone_helper.whitelist_remove(interaction.guild.id, name)
             await message.edit(
                 content=f"Removed **{name}** from the Velocidrone whitelist",
             )
@@ -171,7 +172,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        track = velocidrone_helper.track_add_guild(interaction.guild.id, track_id)
+        track = velocidrone_helper.track_add(interaction.guild.id, track_id)
         if track is None:
             await interaction.response.send_message(
                 f"**{track_id}** does not exist!",
@@ -225,9 +226,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         if timeout is True:
             await message.edit(content=f"Timed out")
         elif view.remove is True:
-            track = velocidrone_helper.track_remove_guild(
-                interaction.guild.id, track_id
-            )
+            track = velocidrone_helper.track_remove(interaction.guild.id, track_id)
             if track is None:
                 await message.edit(
                     content=f"**{track}** is not on the list!",
@@ -250,9 +249,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         self,
         interaction: discord.Interaction,
     ):
-        track_list = velocidrone_helper.get_track_and_ID_list_guild(
-            interaction.guild.id
-        )
+        track_list = velocidrone_helper.get_track_and_ID_list(interaction.guild.id)
 
         track_output = """"""
 
@@ -290,6 +287,31 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             ephemeral=False,
         )
 
+    @app_commands.command(
+        name="set_leaderboard_channel",
+        description="Sets the leaderboard channel",
+    )
+    async def set_leaderboard_channel(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel,
+    ):
+        role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
+        if role not in interaction.user.roles:
+            await interaction.response.send_message(
+                f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
+                ephemeral=True,
+            )
+            return
+
+        velocidrone_helper.set_guild_leaderboard_channel(
+            interaction.guild.id, channel.id
+        )
+        await interaction.response.send_message(
+            f"Set the leaderboard channel to {channel.mention}",
+            ephemeral=False,
+        )
+
     @tasks.loop(
         seconds=config["track_update_interval"],
         count=None,
@@ -303,6 +325,10 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
         if track_diff is not {}:
             for guild_id in config["leaderboard_guilds"]:
+                if velocidrone_helper.get_guild_leaderboard_channel(guild_id) is None:
+                    print(f"Guild {guild_id} does not have a leaderboard channel set")
+                    continue
+
                 for track_id in track_diff:
                     if track_id not in velocidrone_helper.get_guild_track_list(
                         guild_id

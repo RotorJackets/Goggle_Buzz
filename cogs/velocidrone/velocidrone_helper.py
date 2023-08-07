@@ -1,4 +1,5 @@
 import asyncio
+import itertools
 import time
 import json
 import requests
@@ -8,7 +9,6 @@ from config import config as config_main
 config = config_main["velocidrone"]
 
 debug = False
-
 
 track_scenes = {
     "Apartment": 52,
@@ -57,7 +57,7 @@ track_scenes = {
 }
 
 
-def setup() -> None:
+def setup(guilds) -> None:
     tempDict = {}
 
     try:
@@ -67,7 +67,7 @@ def setup() -> None:
     except IOError as e:
         print("Velocidrone save file not found . . . Making that shit!")
         f = open(config["save_location"] + "velocidrone.json", "w")
-        f.write('{"whitelist": [],"track_ids": []}')
+        f.write('{"track_priority":{"high":{},"low":[]},"guilds":{}}')
         f.close()
 
     with open(config["save_location"] + "velocidrone.json") as f:
@@ -78,13 +78,36 @@ def setup() -> None:
     for key in tempDict.keys():
         config[key] = tempDict[key]
 
+    for guild in guilds:
+        print(guild.id)
+        ensure_guild_exists(guild.id)
+
     track_ids = get_all_tracks()
 
+    high_priority_track_ids = config["track_priority"]["high"].keys()
+    low_priority_track_ids = config["track_priority"]["low"]
+
     for track_id in track_ids:
-        save_track(get_leaderboard_guild(None, get_JSON_url(track_id)), track_id)
+        save_track(get_leaderboard(None, get_JSON_url(track_id)), track_id)
+        if (
+            track_id in low_priority_track_ids
+            or str(track_id) in high_priority_track_ids
+        ):
+            continue
+
+        config["track_priority"]["low"].append(track_id)
+
+    save_config()
 
 
-def get_leaderboard_guild(guild_id: int, url: str) -> list:
+def get_leaderboard(guild_id: int, url: str) -> list:
+    """Get the current leaderboard for a url
+
+    Args:
+        guild_id (int): The guilds ID
+        url (str): The leaderboard as a JSON URL
+
+    """
     velocidrone_leaderboard = []
 
     response = requests.get(url, timeout=100)
@@ -112,7 +135,7 @@ def get_leaderboard_guild(guild_id: int, url: str) -> list:
     return velocidrone_leaderboard
 
 
-def whitelist_add_guild(guild_id: int, name: str) -> str:
+def whitelist_add(guild_id: int, name: str) -> str:
     if name not in config["guilds"][str(guild_id)]["whitelist"]:
         config["guilds"][str(guild_id)]["whitelist"].append(name)
         save_config()
@@ -121,7 +144,7 @@ def whitelist_add_guild(guild_id: int, name: str) -> str:
         return None
 
 
-def whitelist_remove_guild(guild_id: int, name: str) -> str:
+def whitelist_remove(guild_id: int, name: str) -> str:
     if name in config["guilds"][str(guild_id)]["whitelist"]:
         config["guilds"][str(guild_id)]["whitelist"].remove(name)
         save_config()
@@ -130,16 +153,17 @@ def whitelist_remove_guild(guild_id: int, name: str) -> str:
         return None
 
 
-def track_add_guild(guild_id: int, track_id: int):
+def track_add(guild_id: int, track_id: int):
     if track_id not in config["guilds"][str(guild_id)]["track_ids"]:
         try:
             config["guilds"][str(guild_id)]["track_ids"].append(track_id)
             save_config()
             url = get_JSON_url(track_id)
             save_track(
-                get_leaderboard_guild(guild_id, url),
+                get_leaderboard(guild_id, url),
                 track_id,
             )
+            add_track_to_high_priority(track_id)
             return get_track(track_id)[0]["track_name"]
         except Exception as e:
             config["guilds"][str(guild_id)]["track_ids"].remove(track_id)
@@ -149,7 +173,7 @@ def track_add_guild(guild_id: int, track_id: int):
         return get_track(track_id)[0]["track_name"]
 
 
-def track_remove_guild(guild_id: int, track_id: int):
+def track_remove(guild_id: int, track_id: int):
     removed = False
 
     for i in config["guilds"][str(guild_id)]["track_ids"]:
@@ -163,9 +187,15 @@ def track_remove_guild(guild_id: int, track_id: int):
 
 def save_config():
     tempDict = {}
+
+    tempDict["track_priority"] = {}
     tempDict["guilds"] = {}
+
     for guild_id in config["guilds"]:
         tempDict["guilds"][str(guild_id)] = config["guilds"][str(guild_id)]
+
+    for priority in config["track_priority"]:
+        tempDict["track_priority"][priority] = config["track_priority"][priority]
 
     with open(config["save_location"] + "velocidrone.json", "w") as f:
         if debug:
@@ -188,7 +218,7 @@ def get_leaderboard_url(track_id: int):
     track_ids = get_all_tracks()
 
     if track_id in track_ids:
-        track = get_leaderboard_guild(None, get_JSON_url(track_id))
+        track = get_leaderboard(None, get_JSON_url(track_id))
         scene = track[0]["scenery_name"]
         return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
 
@@ -214,7 +244,7 @@ def get_whitelist():
     return config["whitelist"]
 
 
-def get_track_list_guild(guild_id: int):
+def get_track_list(guild_id: int):
     tracks = []
 
     tempTrack = []
@@ -227,7 +257,7 @@ def get_track_list_guild(guild_id: int):
     return tracks
 
 
-def get_track_and_ID_list_guild(guild_id: int):
+def get_track_and_ID_list(guild_id: int):
     tracks = []
 
     tempTrack = []
@@ -250,30 +280,51 @@ def get_track(track_id: int) -> list:
     return track
 
 
-def get_number_of_tracks():
+def get_number_of_tracks(prioritized_list: bool = False):
     try:
-        track_ids = get_all_tracks()
-
-        return len(track_ids)
+        if prioritized_list:
+            return len(generate_prioritized_track_list())
+        else:
+            return len(get_all_tracks())
 
     except Exception as e:
         return 0
 
 
-async def track_update():
+async def track_update() -> dict:
+    """Updates the leaderboard for all tracks and returns a dictionary of the differences between the old and new leaderboards
+
+    Returns:
+        dict: A dictionary of the differences between the old and new leaderboards
+    """
+
     track_diff = {}
-    track_ids = get_all_tracks()
+    track_ids = generate_prioritized_track_list()
+    new_low_priority_track_ids = []
 
     for track_id in track_ids:
+        if track_id in new_low_priority_track_ids:
+            print(f"Skipping track {track_id} because it was deprioritized")
+            continue
+
         await asyncio.sleep(10)
 
         saved_leaderboard = get_track(track_id)
-        current_leaderboard = get_leaderboard_guild(None, get_JSON_url(track_id))
+        current_leaderboard = get_leaderboard(None, get_JSON_url(track_id))
 
         if saved_leaderboard[1] != current_leaderboard[1]:
             save_track(current_leaderboard, track_id)
             track_diff[track_id] = {}
+
+            add_track_to_high_priority(track_id)
         else:
+            if str(track_id) in config["track_priority"]["high"].keys() and (
+                time.time()
+                - config["track_priority"]["high"][str(track_id)]["last_changed"]
+                > config["track_deprioritize_time"]
+            ):
+                new_low_priority_track_ids.append(track_id)
+                remove_track_from_high_priority(track_id)
             continue
 
         for i in current_leaderboard[1]:
@@ -298,6 +349,31 @@ async def track_update():
     return track_diff
 
 
+def set_guild_leaderboard_channel(guild_id: int, channel_id: int):
+    config["guilds"][str(guild_id)]["leaderboard_channel_id"] = channel_id
+    save_config()
+
+
+def generate_prioritized_track_list() -> list:
+    """Generates a list of track IDs
+
+    Generate a list of tracks that alternates between high priority and low priority tracks and repeats until all tracks are in the list. Duplicating high priority tracks if necessary.
+
+    Returns:
+        list: A list of track IDs prioritized by the high priority list and then the low priority list
+    """
+
+    high_priority_track_ids = list(config["track_priority"]["high"].keys())
+    high_priority_track_ids = [int(i) for i in high_priority_track_ids]
+    low_priority_track_ids = config["track_priority"]["low"]
+
+    track_ids = distribute(high_priority_track_ids * 3, low_priority_track_ids)
+
+    print(track_ids)
+
+    return track_ids
+
+
 def get_guild_track_list(guild_id: int):
     return config["guilds"][str(guild_id)]["track_ids"]
 
@@ -318,6 +394,79 @@ def get_all_tracks() -> set:
             track_ids.add(track_id)
 
     return track_ids
+
+
+def ensure_guild_exists(guild_id: int):
+    if guild_id not in config["guilds"].keys():
+        config["guilds"][str(guild_id)] = {
+            "track_ids": [],
+            "whitelist": [],
+            "leaderboard_channel_id": None,
+        }
+        save_config()
+
+
+def add_track_to_high_priority(track_id: int):
+    """Adds a track to the high priority list and removes it from the low priority list
+
+    Args:
+        track_id (int): The track ID to add to the high priority list
+    """
+    if str(track_id) not in config["track_priority"]["high"].keys():
+        config["track_priority"]["high"][str(track_id)] = {"last_changed": time.time()}
+
+    if track_id in config["track_priority"]["low"]:
+        config["track_priority"]["low"].remove(track_id)
+
+    save_config()
+
+
+def remove_track_from_high_priority(track_id: int):
+    """Removes a track from the high priority list and adds it to the low priority list
+
+    Args:
+        track_id (int): The track ID to remove from the high priority list
+    """
+    if str(track_id) in config["track_priority"]["high"].keys():
+        config["track_priority"]["high"].pop(str(track_id))
+
+    if track_id not in config["track_priority"]["low"]:
+        config["track_priority"]["low"].append(track_id)
+
+    save_config()
+
+
+def distribute(source_one, source_two) -> list:
+    """Distribute the elements of source_one into source_two, returning a list.
+
+    All elements of source_one and source_two will be included in the result, even if the lengths of the two iterables are not equal. The spacing between the elements will be equal, and the elements will be in the same order as they were in the original iterables.
+
+    >>> list(distribute([1, 2], [5, 6, 7, 8]))
+    [1, 5, 6, 2, 7, 8]
+    """
+    len_one, len_two = len(source_one), len(source_two)
+    result = []
+
+    if len_one == 0:
+        return source_two
+    if len_two == 0:
+        return source_one
+
+    ratio = (len_two + len_one - 1) // len_one
+
+    idx_one, idx_two = 0, 0
+
+    while idx_one < len_one or idx_two < len_two:
+        if idx_one < len_one:
+            result.append(source_one[idx_one])
+            idx_one += 1
+
+        for _ in range(ratio):
+            if idx_two < len_two:
+                result.append(source_two[idx_two])
+                idx_two += 1
+
+    return result
 
 
 if __name__ == "__main__":

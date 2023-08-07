@@ -17,7 +17,7 @@ def setup(guilds: list[discord.guild.Guild]):
             pass
         f.close()
     except IOError as e:
-        print("Velocidrone save file not found . . . Making that shit!")
+        print("Util save file not found . . . Making that shit!")
         f = open(config["save_location"] + "util.json", "w")
         f.write("{}")
         f.close()

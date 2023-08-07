@@ -4,8 +4,7 @@ config = {
         "cogs.leaderboard.leaderboard",
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
-        "cogs.util.util_setup",
-        "cogs.util.join_message",
+        "cogs.util.util",
     ],
     "leaderboard": {
         "whitelisted_guilds": [723199784697200810],

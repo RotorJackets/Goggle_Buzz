@@ -362,6 +362,25 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                             )
                         )
 
+    @app_commands.command(
+        name="reset_velocidrone",
+        description="Reset WhiteList and Track List",
+    )
+    async def reset_velocidrone(
+        self,
+        interaction: discord.Interaction,
+        whitelist: bool = False,
+        tracks: bool = False,
+    ):
+        velocidrone_helper.reset_velocidrone(
+            interaction.guild.id, whitelist, tracks
+        )
+
+        await interaction.response.send_message(
+            "DONE!",
+            ephemeral=False,
+        )
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Velocidrone(bot))

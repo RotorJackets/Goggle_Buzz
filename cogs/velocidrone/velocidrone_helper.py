@@ -200,16 +200,23 @@ def save_config():
         tempDict["track_priority"][priority] = config["track_priority"][priority]
 
     with open(config["save_location"] + "velocidrone.json", "w") as f:
-        if debug:
-            json.dump(
-                tempDict,
-                f,
-                indent=4,
-                sort_keys=True,
-                separators=(",", ": "),
-            )
-        else:
-            json.dump(tempDict, f)
+        json.dump(tempDict, f)
+
+
+def save_config_backup():
+    tempDict = {}
+
+    tempDict["track_priority"] = {}
+    tempDict["guilds"] = {}
+
+    for guild_id in config["guilds"]:
+        tempDict["guilds"][str(guild_id)] = config["guilds"][str(guild_id)]
+
+    for priority in config["track_priority"]:
+        tempDict["track_priority"][priority] = config["track_priority"][priority]
+
+    with open(config["save_location"] + f"velocidrone_{time.time()}.json", "w") as f:
+        json.dump(tempDict, f)
 
 
 def get_JSON_url(track_id: int):
@@ -349,6 +356,23 @@ async def track_update() -> dict:
                 }
 
     return track_diff
+
+
+def reset_velocidrone(guild_id: int, whitelist: bool, tracks: bool):
+    if not whitelist and not tracks:
+        return False
+
+    save_config_backup()
+
+    if whitelist:
+        config["guilds"][str(guild_id)]["whitelist"] = []
+
+    if tracks:
+        track_ids = config["guilds"][str(guild_id)]["track_ids"].copy()
+        for track_id in track_ids:
+            track_remove(guild_id, track_id)
+
+    save_config()
 
 
 def set_guild_leaderboard_channel(guild_id: int, channel_id: int):

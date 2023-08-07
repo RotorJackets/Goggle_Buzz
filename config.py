@@ -18,6 +18,7 @@ config = {
     },
     "velocidrone": {
         "track_update_interval": 200,
+        "track_deprioritize_time": 86400,
         # TODO: Make these not hardcoded, should be setup like levels where each guild is auto added.
         "leaderboard_guilds": [723199784697200810, 403351447770497026],
         "velocidrone_edit_role": "Researcher",

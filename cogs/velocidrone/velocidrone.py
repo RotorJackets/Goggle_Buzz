@@ -67,7 +67,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         interaction: discord.Interaction,
         track_id: int,
     ):
-        json_data = velocidrone_helper.get_leaderboard_guild(
+        json_data = velocidrone_helper.get_leaderboard(
             interaction.guild.id,
             f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}",
         )
@@ -106,7 +106,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        velocidrone_helper.whitelist_add_guild(interaction.guild.id, name)
+        velocidrone_helper.whitelist_add(interaction.guild.id, name)
         await interaction.response.send_message(
             f"Added **{name}** to the Velocidrone whitelist",
             ephemeral=False,
@@ -142,7 +142,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         if timeout is True:
             await message.edit(content=f"Timed out")
         elif view.remove is True:
-            velocidrone_helper.whitelist_remove_guild(interaction.guild.id, name)
+            velocidrone_helper.whitelist_remove(interaction.guild.id, name)
             await message.edit(
                 content=f"Removed **{name}** from the Velocidrone whitelist",
             )
@@ -171,7 +171,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             )
             return
 
-        track = velocidrone_helper.track_add_guild(interaction.guild.id, track_id)
+        track = velocidrone_helper.track_add(interaction.guild.id, track_id)
         if track is None:
             await interaction.response.send_message(
                 f"**{track_id}** does not exist!",
@@ -225,9 +225,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         if timeout is True:
             await message.edit(content=f"Timed out")
         elif view.remove is True:
-            track = velocidrone_helper.track_remove_guild(
-                interaction.guild.id, track_id
-            )
+            track = velocidrone_helper.track_remove(interaction.guild.id, track_id)
             if track is None:
                 await message.edit(
                     content=f"**{track}** is not on the list!",
@@ -250,9 +248,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         self,
         interaction: discord.Interaction,
     ):
-        track_list = velocidrone_helper.get_track_and_ID_list_guild(
-            interaction.guild.id
-        )
+        track_list = velocidrone_helper.get_track_and_ID_list(interaction.guild.id)
 
         track_output = """"""
 

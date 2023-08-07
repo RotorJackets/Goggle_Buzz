@@ -55,8 +55,9 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        velocidrone_helper.setup()
+        velocidrone_helper.setup(self.bot.guilds)
         self.background_leaderboard_update.start()
+        print("Velocidrone cog ready")
 
     @app_commands.command(
         name="leaderboard",
@@ -286,6 +287,31 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
             ephemeral=False,
         )
 
+    @app_commands.command(
+        name="set_leaderboard_channel",
+        description="Sets the leaderboard channel",
+    )
+    async def set_leaderboard_channel(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel,
+    ):
+        role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
+        if role not in interaction.user.roles:
+            await interaction.response.send_message(
+                f"""You must have the **{config["velocidrone_edit_role"]}** role to use this command""",
+                ephemeral=True,
+            )
+            return
+
+        velocidrone_helper.set_guild_leaderboard_channel(
+            interaction.guild.id, channel.id
+        )
+        await interaction.response.send_message(
+            f"Set the leaderboard channel to {channel.mention}",
+            ephemeral=False,
+        )
+
     @tasks.loop(
         seconds=config["track_update_interval"],
         count=None,
@@ -299,6 +325,10 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
         if track_diff is not {}:
             for guild_id in config["leaderboard_guilds"]:
+                if velocidrone_helper.get_guild_leaderboard_channel(guild_id) is None:
+                    print(f"Guild {guild_id} does not have a leaderboard channel set")
+                    continue
+
                 for track_id in track_diff:
                     if track_id not in velocidrone_helper.get_guild_track_list(
                         guild_id

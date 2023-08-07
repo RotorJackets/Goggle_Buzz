@@ -57,7 +57,7 @@ track_scenes = {
 }
 
 
-def setup() -> None:
+def setup(guilds) -> None:
     tempDict = {}
 
     try:
@@ -77,6 +77,10 @@ def setup() -> None:
 
     for key in tempDict.keys():
         config[key] = tempDict[key]
+
+    for guild in guilds:
+        print(guild.id)
+        ensure_guild_exists(guild.id)
 
     track_ids = get_all_tracks()
 
@@ -296,9 +300,13 @@ async def track_update() -> dict:
 
     track_diff = {}
     track_ids = generate_prioritized_track_list()
+    new_low_priority_track_ids = []
 
     for track_id in track_ids:
-        print(track_id)
+        if track_id in new_low_priority_track_ids:
+            print(f"Skipping track {track_id} because it was deprioritized")
+            continue
+
         await asyncio.sleep(10)
 
         saved_leaderboard = get_track(track_id)
@@ -311,10 +319,11 @@ async def track_update() -> dict:
             add_track_to_high_priority(track_id)
         else:
             if str(track_id) in config["track_priority"]["high"].keys() and (
-                config["track_priority"]["high"][str(track_id)]["last_changed"]
-                - time.time()
+                time.time()
+                - config["track_priority"]["high"][str(track_id)]["last_changed"]
                 > config["track_deprioritize_time"]
             ):
+                new_low_priority_track_ids.append(track_id)
                 remove_track_from_high_priority(track_id)
             continue
 
@@ -340,6 +349,11 @@ async def track_update() -> dict:
     return track_diff
 
 
+def set_guild_leaderboard_channel(guild_id: int, channel_id: int):
+    config["guilds"][str(guild_id)]["leaderboard_channel_id"] = channel_id
+    save_config()
+
+
 def generate_prioritized_track_list() -> list:
     """Generates a list of track IDs
 
@@ -348,45 +362,14 @@ def generate_prioritized_track_list() -> list:
     Returns:
         list: A list of track IDs prioritized by the high priority list and then the low priority list
     """
-    track_ids = []
-    # visited_tracks = set()
-
-    # high_index = 0
-    # low_index = 0
-
-    # loop_counter = 0
 
     high_priority_track_ids = list(config["track_priority"]["high"].keys())
+    high_priority_track_ids = [int(i) for i in high_priority_track_ids]
     low_priority_track_ids = config["track_priority"]["low"]
-    number_of_tracks = get_number_of_tracks()
 
-    # while len(visited_tracks) < number_of_tracks:
-    #     if low_index >= len(low_priority_track_ids):
-    #         break
-    #     if high_index >= len(high_priority_track_ids):
-    #         loop_counter += 1
-    #         high_index = 0
-    #         if loop_counter > 3:
-    #             break
+    track_ids = distribute(high_priority_track_ids * 3, low_priority_track_ids)
 
-    #     track_ids.append(high_priority_track_ids[high_index])
-    #     track_ids.append(low_priority_track_ids[low_index])
-
-    #     visited_tracks.add(high_priority_track_ids[high_index])
-    #     visited_tracks.add(low_priority_track_ids[low_index])
-
-    #     high_index += 1
-    #     low_index += 1
-
-    # while len(visited_tracks) < get_number_of_tracks():
-    #     for track_id in high_priority_track_ids:
-    #         if track_id not in visited_tracks:
-    #             track_ids.append(track_id)
-    #             visited_tracks.add(track_id)
-    #     for track_id in low_priority_track_ids:
-    #         if track_id not in visited_tracks:
-    #             track_ids.append(track_id)
-    #             visited_tracks.add(track_id)
+    print(track_ids)
 
     return track_ids
 
@@ -411,6 +394,16 @@ def get_all_tracks() -> set:
             track_ids.add(track_id)
 
     return track_ids
+
+
+def ensure_guild_exists(guild_id: int):
+    if guild_id not in config["guilds"].keys():
+        config["guilds"][str(guild_id)] = {
+            "track_ids": [],
+            "whitelist": [],
+            "leaderboard_channel_id": None,
+        }
+        save_config()
 
 
 def add_track_to_high_priority(track_id: int):
@@ -446,27 +439,34 @@ def remove_track_from_high_priority(track_id: int):
 def distribute(source_one, source_two) -> list:
     """Distribute the elements of source_one into source_two, returning a list.
 
-    >>> list(distribute([1, 2, 3, 4], [5, 6, 7, 8]))
-    [1, 5, 2, 6, 3, 7, 4, 8]
+    All elements of source_one and source_two will be included in the result, even if the lengths of the two iterables are not equal. The spacing between the elements will be equal, and the elements will be in the same order as they were in the original iterables.
 
-    Source: https://www.reddit.com/r/learnpython/comments/apwwfm/how_to_evenly_distribute_one_list_into_another/
+    >>> list(distribute([1, 2], [5, 6, 7, 8]))
+    [1, 5, 6, 2, 7, 8]
     """
-    step = (len(source_one) - 2) // (len(source_two) - 1)
-    splice = source_one[1:-1]
-    iters = [iter(splice)] * step
-    compressed = itertools.chain(source_one[0:1], zip(*iters))
-    unzipped = zip(compressed, source_two)
-    flattened = flatten(unzipped)
-    return list(itertools.chain(flattened, source_one[-1:]))
+    len_one, len_two = len(source_one), len(source_two)
+    result = []
 
+    if len_one == 0:
+        return source_two
+    if len_two == 0:
+        return source_one
 
-def flatten(lst) -> list:
-    """Flatten an iterable of iterables into a single iterable.
+    ratio = (len_two + len_one - 1) // len_one
 
-    >>> list(flatten([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
-    [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    """
-    return sum(([x] if not isinstance(x, tuple) else flatten(x) for x in lst), [])
+    idx_one, idx_two = 0, 0
+
+    while idx_one < len_one or idx_two < len_two:
+        if idx_one < len_one:
+            result.append(source_one[idx_one])
+            idx_one += 1
+
+        for _ in range(ratio):
+            if idx_two < len_two:
+                result.append(source_two[idx_two])
+                idx_two += 1
+
+    return result
 
 
 if __name__ == "__main__":

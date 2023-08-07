@@ -4,7 +4,7 @@ config = {
         "cogs.leaderboard.leaderboard",
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
-        "cogs.util.join_message",
+        "cogs.util.util",
     ],
     "leaderboard": {
         "whitelisted_guilds": [723199784697200810],
@@ -22,11 +22,7 @@ config = {
         "save_location": "cogs/velocidrone/json/",
     },
     "util": {
-        "welcome_channel": 1086687733315022918,
-        "new_member_info_channel": 1074547682112192562,
-        "build_help_channel": 1082508044048552056,
-        "introductions_channel": 1086061074215878737,
-        "shipping_channel": "shipping-sharing",
-        "order_role": "RotorJacket",
+        "save_location": "cogs/util/json/",
+        "util_edit_role": "Researcher",
     },
 }

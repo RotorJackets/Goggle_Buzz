@@ -24,4 +24,9 @@ config = {
         "save_location": "cogs/util/json/",
         "util_edit_role": "Researcher",
     },
+    "youtube": {
+        "save_location": "cogs/youtube/json/",
+        "youtube_edit_role": "Researcher",
+        "channel_update_interval": 10,
+    },
 }

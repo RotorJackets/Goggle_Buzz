@@ -7,10 +7,9 @@ config = {
         "cogs.util.util",
     ],
     "leaderboard": {
-        "whitelisted_guilds": [723199784697200810],
         "level_up_XP": 800,
         "random_xp_range": [15, 50],
-        "delay_XP_seconds": 0,
+        "delay_XP_seconds": 10,
         "leaderboard_save_interval_seconds": 25,
         "leaderboard_delete_after_seconds": 120,
         "save_location": "cogs/leaderboard/json/",

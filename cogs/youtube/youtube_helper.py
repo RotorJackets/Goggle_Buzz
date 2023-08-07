@@ -60,12 +60,11 @@ def add_channel(guild_id: int, channel: str):
         return False
 
 
-def remove_channel(guild_id: int, channel: str) -> bool:
+def remove_channel(guild_id: int, channel: str):
     if channel not in config["guilds"][str(guild_id)]["tracked_channels"].keys():
-        return True
+        return
 
     config["guilds"][str(guild_id)]["tracked_channels"].remove(channel)
-    return True
 
 
 def get_guild_channels(guild_id: int) -> list[str]:
@@ -88,8 +87,13 @@ def get_all_channel_count() -> int:
 
 def check_channel_existence(channel: str) -> bool:
     return True
+    # TODO: Implement this function
 
 
-def set_channel(guild_id: int, name: str, channel: discord.TextChannel):
+def whitelist_guild(guild_id: int, whitelist: bool):
+    config["guilds"][str(guild_id)]["whitelisted"] = whitelist
+
+
+def set_channel(guild_id: int, channel: discord.TextChannel):
     config["guilds"][str(guild_id)]["notification_channel"] = channel
     save_config()

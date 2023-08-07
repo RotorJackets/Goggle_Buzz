@@ -79,7 +79,6 @@ def setup(guilds) -> None:
         config[key] = tempDict[key]
 
     for guild in guilds:
-        print(guild.id)
         ensure_guild_exists(guild.id)
 
     track_ids = get_all_tracks()
@@ -179,8 +178,11 @@ def track_remove(guild_id: int, track_id: int):
     for i in config["guilds"][str(guild_id)]["track_ids"]:
         if i == track_id:
             config["guilds"][str(guild_id)]["track_ids"].remove(i)
-            save_config()
             removed = True
+            save_config()
+
+    if track_id not in get_all_tracks():
+        remove_track_from_priority(track_id)
 
     return get_track(track_id)[0]["track_name"] if removed else None
 
@@ -369,8 +371,6 @@ def generate_prioritized_track_list() -> list:
 
     track_ids = distribute(high_priority_track_ids * 3, low_priority_track_ids)
 
-    print(track_ids)
-
     return track_ids
 
 
@@ -397,7 +397,8 @@ def get_all_tracks() -> set:
 
 
 def ensure_guild_exists(guild_id: int):
-    if guild_id not in config["guilds"].keys():
+    if str(guild_id) not in list(config["guilds"].keys()):
+        print(f"Adding guild {guild_id} to velocidrone config")
         config["guilds"][str(guild_id)] = {
             "track_ids": [],
             "whitelist": [],
@@ -432,6 +433,22 @@ def remove_track_from_high_priority(track_id: int):
 
     if track_id not in config["track_priority"]["low"]:
         config["track_priority"]["low"].append(track_id)
+
+    save_config()
+
+
+def remove_track_from_priority(track_id: int):
+    """Removes track from both high and low priority lists
+
+    Args:
+        track_id (int): The track ID to remove from the priority lists
+    """
+
+    if str(track_id) in config["track_priority"]["high"].keys():
+        config["track_priority"]["high"].pop(str(track_id))
+
+    if track_id in config["track_priority"]["low"]:
+        config["track_priority"]["low"].remove(track_id)
 
     save_config()
 

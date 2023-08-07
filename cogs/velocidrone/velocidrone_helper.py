@@ -79,7 +79,6 @@ def setup(guilds) -> None:
         config[key] = tempDict[key]
 
     for guild in guilds:
-        print(guild.id)
         ensure_guild_exists(guild.id)
 
     track_ids = get_all_tracks()
@@ -368,8 +367,6 @@ def generate_prioritized_track_list() -> list:
     low_priority_track_ids = config["track_priority"]["low"]
 
     track_ids = distribute(high_priority_track_ids * 3, low_priority_track_ids)
-
-    print(track_ids)
 
     return track_ids
 

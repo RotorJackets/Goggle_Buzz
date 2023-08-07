@@ -14,7 +14,7 @@ leaderboard = {}
 debug = False
 
 
-def setup():
+def setup(guilds: list[discord.guild.Guild]):
     global leaderboard
 
     try:
@@ -30,6 +30,12 @@ def setup():
     with open(config["save_location"]) as f:
         leaderboard = json.load(f)
 
+    for guild in guilds:
+        if str(guild.id) not in leaderboard.keys():
+            leaderboard[str(guild.id)] = {"whitelisted": False}
+
+    save()
+
     f.close()
 
 
@@ -38,10 +44,6 @@ def author_check(guild: discord.guild.Guild, member: discord.member.Member):
 
     member_ID = str(member.id)
     guild_ID = str(guild.id)
-
-    if leaderboard.get(guild_ID) is None:
-        print(f"Guild not found, adding {guild_ID} to leaderboard.")
-        leaderboard[guild_ID] = {}
 
     if leaderboard[guild_ID].get(member_ID) is None:
         print(f"Author not found, adding {member_ID} to leaderboard.")
@@ -126,7 +128,7 @@ def get_info(guild: discord.guild.Guild, member: discord.member.Member):
     return leaderboard[guild_ID][member_ID]
 
 
-def save(guild: discord.guild.Guild):
+def save():
     global leaderboard
 
     with open(config["save_location"], "w") as f:
@@ -182,3 +184,18 @@ def reset_member(member: discord.member.Member):
     }
 
     save(member.guild)
+
+
+def whitelist_guild(guild: discord.guild.Guild, whitelist: bool):
+    global leaderboard
+    guild_ID = str(guild.id)
+
+    leaderboard[guild_ID]["whitelisted"] = whitelist
+    save()
+
+
+def is_whitelisted(guild_id: int) -> bool:
+    global leaderboard
+    guild_ID = str(guild_id)
+
+    return leaderboard[guild_ID]["whitelisted"]

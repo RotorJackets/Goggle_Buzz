@@ -16,12 +16,14 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        leaderboard_helper.setup()
+        leaderboard_helper.setup(self.bot.guilds)
         self.background_leaderboard_save.start()
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.guild not in config["whitelisted_guilds"]:
+        if message.guild == None or not leaderboard_helper.is_whitelisted(
+            message.guild.id
+        ):
             return
 
         if message.author.bot:
@@ -33,6 +35,18 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
             await message.channel.send(
                 f"{message.author.mention} has leveled up to level {level}"
             )
+
+    @app_commands.command(
+        name="whitelist_guild",
+        description="Whitelists the guild",
+    )
+    @commands.has_permissions(administrator=True)
+    async def whitelist_guild(self, interaction: discord.Interaction, whitelist: bool):
+        leaderboard_helper.whitelist_guild(interaction.guild, whitelist)
+        await interaction.response.send_message(
+            f"Guild **{interaction.guild.name}** is whitelisted: *{whitelist}*",
+            ephemeral=True,
+        )
 
     @app_commands.command(
         name="show",
@@ -122,12 +136,12 @@ class Leaderboard(commands.GroupCog, name="leaderboard"):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def save(self, ctx):
-        leaderboard_helper.save(ctx.guild)
+        leaderboard_helper.save()
         await ctx.send("Saved")
 
     @tasks.loop(seconds=config["leaderboard_save_interval_seconds"], count=None)
     async def background_leaderboard_save(self):
-        leaderboard_helper.save(config_main["guilds"])
+        leaderboard_helper.save()
 
 
 async def setup(bot: commands.Bot) -> None:

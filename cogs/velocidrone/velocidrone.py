@@ -324,7 +324,8 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         track_diff = await velocidrone_helper.track_update()
 
         if track_diff is not {}:
-            for guild_id in config["leaderboard_guilds"]:
+            for guild in self.bot.guilds:
+                guild_id = guild.id
                 if velocidrone_helper.get_guild_leaderboard_channel(guild_id) is None:
                     print(f"Guild {guild_id} does not have a leaderboard channel set")
                     continue

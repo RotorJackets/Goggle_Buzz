@@ -1,7 +1,7 @@
 import discord
 import json
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 import cogs.youtube.youtube_helper as youtube_helper
 
@@ -18,6 +18,7 @@ class YouTube(commands.GroupCog, name="youtube"):
     @commands.Cog.listener()
     async def on_ready(self):
         youtube_helper.setup(self.bot.guilds)
+        self.background_channel_update.start()
         print("YouTube has been setup")
 
     @app_commands.command(
@@ -52,12 +53,12 @@ class YouTube(commands.GroupCog, name="youtube"):
             )
             return
 
-        result = youtube_helper.add_channel(interaction.guild.id, channel)
+        result = youtube_helper.add_channel(interaction.guild.id, channel.lower())
         if result:
             await interaction.response.send_message(f"Now tracking {channel}")
         else:
             await interaction.response.send_message(
-                f"Failed to track {channel}", ephemeral=True
+                f"Failed to track **{channel}**", ephemeral=True
             )
 
     @app_commands.command(
@@ -73,7 +74,7 @@ class YouTube(commands.GroupCog, name="youtube"):
             )
             return
 
-        result = youtube_helper.remove_channel(interaction.guild.id, channel)
+        result = youtube_helper.remove_channel(interaction.guild.id, channel.lower())
         await interaction.response.send_message(f"Stopped tracking {channel}")
 
     @app_commands.command(
@@ -105,11 +106,61 @@ class YouTube(commands.GroupCog, name="youtube"):
     )
     @commands.has_permissions(administrator=True)
     async def whitelist_guild(self, interaction: discord.Interaction, whitelist: bool):
-        youtube_helper.whitelist_guild(interaction.guild, whitelist)
+        youtube_helper.whitelist_guild(interaction.guild.id, whitelist)
         await interaction.response.send_message(
             f"Guild **{interaction.guild.name}** is whitelisted: *{whitelist}*",
             ephemeral=True,
         )
+
+    @app_commands.command(
+        name="get_latest_video",
+        description="Gets the latest video from a channel",
+    )
+    async def get_latest_video(
+        self,
+        interaction: discord.Interaction,
+        channel: str,
+    ):
+        video = youtube_helper.get_latest_channel_data(channel.lower())
+        if video is None:
+            await interaction.response.send_message(
+                f"Failed to get the latest video from **{channel}**",
+                ephemeral=True,
+            )
+            return
+
+        await interaction.response.send_message(
+            f"""Here is the latest video from **{channel}**:\n{video["url"]}""",
+            ephemeral=False,
+        )
+
+    @tasks.loop(
+        seconds=config["channel_update_interval"],
+        count=None,
+    )
+    async def background_channel_update(self):
+        YouTube.background_channel_update.change_interval(
+            seconds=(youtube_helper.get_all_channel_count() * 30) + 30
+        )
+
+        channel_diff = await youtube_helper.get_all_channel_diff()
+
+        for guild in self.bot.guilds:
+            if not youtube_helper.is_guild_whitelisted(guild.id):
+                continue
+
+            channel_id = youtube_helper.get_guild_notification_channel(guild.id)
+            if channel_id is None:
+                print(f"Guild {guild.name} has no channel set for YouTube")
+                continue
+
+            for channel in channel_diff.keys():
+                if channel not in youtube_helper.get_guild_channels(guild.id):
+                    continue
+
+                await self.bot.get_channel(channel_id).send(
+                    f'**{channel}** has a new video:\n{channel_diff[channel]["url"]}'
+                )
 
 
 async def setup(bot: commands.Bot) -> None:

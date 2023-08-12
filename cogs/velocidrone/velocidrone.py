@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import time
 from discord import app_commands
 from discord.ext import commands, tasks
 import datetime
@@ -57,6 +58,8 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     @commands.Cog.listener()
     async def on_ready(self):
         velocidrone_helper.setup(self.bot.guilds)
+
+        # TODO: Move this so it runs after on_ready or make this async
         self.background_leaderboard_update.start()
         print("Velocidrone cog ready")
 
@@ -405,6 +408,10 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                                 color=discord.Color.gold(),
                             )
                         )
+
+    @background_leaderboard_update.before_loop
+    async def before_leaderboard_update(self):
+        await self.bot.wait_until_ready()
 
     @app_commands.command(
         name="reset_velocidrone",

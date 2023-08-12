@@ -5,6 +5,7 @@ config = {
         "cogs.fun.fun",
         "cogs.velocidrone.velocidrone",
         "cogs.util.util",
+        "cogs.youtube.youtube",
     ],
     "leaderboard": {
         "level_up_XP": 800,

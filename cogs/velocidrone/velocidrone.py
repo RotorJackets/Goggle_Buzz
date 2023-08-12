@@ -67,8 +67,19 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     async def leaderboard(
         self,
         interaction: discord.Interaction,
-        track_id: int,
+        leaderboard_url: str = None,
+        track_id: int = None,
     ):
+        if leaderboard_url is None and track_id is None:
+            await interaction.response.send_message(
+                f"You must provide either a leaderboard url or a track id",
+                ephemeral=True,
+            )
+            return
+
+        if leaderboard_url is not None:
+            track_id = int(leaderboard_url.split("/")[-2])
+
         json_data = velocidrone_helper.get_leaderboard(
             interaction.guild.id,
             f"https://www.velocidrone.com/leaderboard_as_json2/{0}/{6}/{track_id}/{1.16}",
@@ -155,14 +166,23 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
     @app_commands.command(
         name="add_track",
-        description="Adds to the velocidrone tracks",
+        description="Adds to the velocidrone tracks. Use either the leaderboard url or the track id.",
     )
     async def add_track(
         self,
         interaction: discord.Interaction,
-        leaderboard_url: str,
+        leaderboard_url: str = None,
+        track_id: int = None,
     ):
-        track_id = int(leaderboard_url.split("/")[-2])
+        if leaderboard_url is None and track_id is None:
+            await interaction.response.send_message(
+                f"You must provide either a leaderboard url or a track id",
+                ephemeral=True,
+            )
+            return
+
+        if leaderboard_url is not None:
+            track_id = int(leaderboard_url.split("/")[-2])
 
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
 
@@ -200,13 +220,24 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
 
     @app_commands.command(
         name="remove_track",
-        description="Removes to the velocidrone tracks",
+        description="Removes to the velocidrone tracks. Use either the leaderboard url or the track id.",
     )
     async def remove_track(
         self,
         interaction: discord.Interaction,
-        track_id: int,
+        leaderboard_url: str = None,
+        track_id: int = None,
     ):
+        if leaderboard_url is None and track_id is None:
+            await interaction.response.send_message(
+                f"You must provide either a leaderboard url or a track id",
+                ephemeral=True,
+            )
+            return
+
+        if leaderboard_url is not None:
+            track_id = int(leaderboard_url.split("/")[-2])
+
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(
@@ -235,7 +266,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
                 return
             else:
                 await message.edit(
-                    content=f"Removed **{track}** from the Velocidrone track_id",
+                    content=f"Removed **{track}** from the Velocidrone track list",
                 )
         elif view.remove is False:
             await message.edit(
@@ -386,6 +417,30 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         tracks: bool = False,
     ):
         # TODO: MAKE THE REMOVAL BOYS
+        view = Removal()
+        await interaction.response.send_message(
+            content=f"Are you sure you want to reset Velocidrone?",
+            view=view,
+        )
+
+        message = await interaction.original_response()
+        view.message = message
+        timeout = await view.wait()
+
+        if timeout is True:
+            await message.edit(content=f"Timed out")
+        elif view.remove is True:
+            velocidrone_helper.reset_velocidrone(
+                interaction.guild.id, whitelist, tracks
+            )
+            await message.edit(
+                content=f"Reset Velocidrone.",
+            )
+        elif view.remove is False:
+            await message.edit(
+                content="Cancelled",
+            )
+
         velocidrone_helper.reset_velocidrone(interaction.guild.id, whitelist, tracks)
 
         await interaction.response.send_message(

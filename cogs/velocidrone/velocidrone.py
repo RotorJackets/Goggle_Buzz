@@ -12,6 +12,7 @@ config = config_main["velocidrone"]
 
 
 class Removal(discord.ui.View):
+    # TODO: Move this to a helper file
     def __init__(self):
         super().__init__(timeout=30)
 

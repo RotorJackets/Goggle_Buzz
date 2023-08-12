@@ -386,6 +386,28 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         tracks: bool = False,
     ):
         # TODO: MAKE THE REMOVAL BOYS
+        view = Removal()
+        await interaction.response.send_message(
+            content=f"Are you sure you want to reset Velocidrone?",
+            view=view,
+        )
+
+        message = await interaction.original_response()
+        view.message = message
+        timeout = await view.wait()
+
+        if timeout is True:
+            await message.edit(content=f"Timed out")
+        elif view.remove is True:
+            velocidrone_helper.reset_velocidrone(interaction.guild.id, whitelist, tracks)
+            await message.edit(
+                    content=f"Reset Velocidrone.",
+            )
+        elif view.remove is False:
+            await message.edit(
+                content="Cancelled",
+            )
+
         velocidrone_helper.reset_velocidrone(interaction.guild.id, whitelist, tracks)
 
         await interaction.response.send_message(

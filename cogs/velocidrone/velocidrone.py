@@ -279,16 +279,21 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     ):
         whitelist = velocidrone_helper.get_guild_whitelist(interaction.guild.id)
 
-        track_output = """"""
+        pilot_output = """"""
 
         for name in whitelist:
-            track_output += f"""\n**{name}**"""
+            pilot_output += f"""\n**{name}**"""
 
-        if len(track_output) == 0:
-            track_output = "No people are on the list yet!"
+        if len(pilot_output) == 0:
+            pilot_output = "No people are on the list yet!"
 
         await interaction.response.send_message(
-            track_output,
+            embed=discord.Embed(
+                title=f"""**Pilot Whitelist**""",
+                description=pilot_output,
+                timestamp=datetime.datetime.now(),
+                color=discord.Color.gold(),
+            ),
             ephemeral=False,
         )
 

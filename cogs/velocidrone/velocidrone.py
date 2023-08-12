@@ -399,9 +399,11 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         if timeout is True:
             await message.edit(content=f"Timed out")
         elif view.remove is True:
-            velocidrone_helper.reset_velocidrone(interaction.guild.id, whitelist, tracks)
+            velocidrone_helper.reset_velocidrone(
+                interaction.guild.id, whitelist, tracks
+            )
             await message.edit(
-                    content=f"Reset Velocidrone.",
+                content=f"Reset Velocidrone.",
             )
         elif view.remove is False:
             await message.edit(

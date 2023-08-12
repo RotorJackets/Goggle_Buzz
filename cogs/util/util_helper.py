@@ -40,10 +40,10 @@ def setup(guilds: list[discord.guild.Guild]):
 
 
 def save_config():
-    tempDict = {}
+    tempDict = {"guilds": {}}
 
     for guild in list(config["guilds"].keys()):
-        tempDict["guilds"][guild] = config[guild]
+        tempDict["guilds"][guild] = config["guilds"][guild]
 
     with open(config["save_location"] + "util.json", "w") as f:
         json.dump(tempDict, f)

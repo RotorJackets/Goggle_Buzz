@@ -306,6 +306,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         interaction: discord.Interaction,
         channel: discord.TextChannel,
     ):
+        # TODO: Add embed check box thing
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(

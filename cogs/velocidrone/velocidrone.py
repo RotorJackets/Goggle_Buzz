@@ -249,18 +249,23 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         self,
         interaction: discord.Interaction,
     ):
-        track_list = velocidrone_helper.get_track_and_ID_list(interaction.guild.id)
+        track_list = velocidrone_helper.get_track_info(interaction.guild.id)
 
         track_output = """"""
 
         for track in track_list:
-            track_output += f"""\n**`{track[1]}`\t{track[0]}**"""
+            track_output += f"""\n**`{track[1]}`\t[{track[0]}]({track[2]})**"""
 
         if len(track_output) == 0:
             track_output = "No tracks are on the list yet!"
 
         await interaction.response.send_message(
-            track_output,
+            embed=discord.Embed(
+                title=f"""**Track List**""",
+                description=track_output,
+                timestamp=datetime.datetime.now(),
+                color=discord.Color.gold(),
+            ),
             ephemeral=False,
         )
 
@@ -274,16 +279,21 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
     ):
         whitelist = velocidrone_helper.get_guild_whitelist(interaction.guild.id)
 
-        track_output = """"""
+        pilot_output = """"""
 
         for name in whitelist:
-            track_output += f"""\n**{name}**"""
+            pilot_output += f"""\n**{name}**"""
 
-        if len(track_output) == 0:
-            track_output = "No people are on the list yet!"
+        if len(pilot_output) == 0:
+            pilot_output = "No people are on the list yet!"
 
         await interaction.response.send_message(
-            track_output,
+            embed=discord.Embed(
+                title=f"""**Pilot Whitelist**""",
+                description=pilot_output,
+                timestamp=datetime.datetime.now(),
+                color=discord.Color.gold(),
+            ),
             ephemeral=False,
         )
 
@@ -296,6 +306,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         interaction: discord.Interaction,
         channel: discord.TextChannel,
     ):
+        # TODO: Add embed check box thing
         role = get(interaction.guild.roles, name=config["velocidrone_edit_role"])
         if role not in interaction.user.roles:
             await interaction.response.send_message(

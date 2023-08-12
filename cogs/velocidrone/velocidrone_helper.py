@@ -224,10 +224,22 @@ def get_JSON_url(track_id: int):
 
 
 def get_leaderboard_url(track_id: int):
+    """Returns the leaderboard URL for a track ID
+
+    Args:
+        track_id (int): The track ID
+
+    Returns:
+        str: The leaderboard URL
+    """
     track_ids = get_all_tracks()
 
-    if track_id in track_ids:
+    if track_id not in track_ids:
         track = get_leaderboard(None, get_JSON_url(track_id))
+        scene = track[0]["scenery_name"]
+        return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
+    else:
+        track = get_track(track_id)
         scene = track[0]["scenery_name"]
         return f"https://www.velocidrone.com/leaderboard/{track_scenes[scene]}/{track_id}/All"
 
@@ -266,15 +278,29 @@ def get_track_list(guild_id: int):
     return tracks
 
 
-def get_track_and_ID_list(guild_id: int):
+def get_track_info(guild_id: int) -> list:
+    """Returns a list containing the track name, track ID, and leaderboard URL
+
+    Args:
+        guild_id (int): The guild ID
+
+    Returns:
+        list: A list containing the track name, track ID, and leaderboard URL
+    """
     tracks = []
 
     tempTrack = []
-    for i in config["guilds"][str(guild_id)]["track_ids"]:
-        with open(config["save_location"] + f"/track_{i}.json") as f:
+    for track_id in config["guilds"][str(guild_id)]["track_ids"]:
+        with open(config["save_location"] + f"/track_{track_id}.json") as f:
             tempTrack = json.load(f)
         f.close()
-        tracks.append((tempTrack[0]["track_name"], i))
+        tracks.append(
+            (
+                tempTrack[0]["track_name"],
+                track_id,
+                get_leaderboard_url(track_id),
+            )
+        )
 
     return tracks
 

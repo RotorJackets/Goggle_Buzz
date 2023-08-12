@@ -19,7 +19,7 @@ def setup(guilds: list[discord.guild.Guild]):
     except IOError as e:
         print("Util save file not found . . . Making that shit!")
         f = open(config["save_location"] + "util.json", "w")
-        f.write("{}")
+        f.write('{"guilds": {}}')
         f.close()
 
     with open(config["save_location"] + "util.json") as f:
@@ -32,7 +32,7 @@ def setup(guilds: list[discord.guild.Guild]):
 
     for guild in guilds:
         if (guild_id := str(guild.id)) not in config.keys():
-            config[guild_id] = {
+            config["guilds"][guild_id] = {
                 "welcome_channel": None,
             }
 
@@ -40,13 +40,10 @@ def setup(guilds: list[discord.guild.Guild]):
 
 
 def save_config():
-    tempDict = {}
+    tempDict = {"guilds": {}}
 
-    for guild in list(config.keys()):
-        try:
-            tempDict[str(int(guild))] = config[guild]
-        except Exception as e:
-            continue
+    for guild in list(config["guilds"].keys()):
+        tempDict["guilds"][guild] = config["guilds"][guild]
 
     with open(config["save_location"] + "util.json", "w") as f:
         json.dump(tempDict, f)

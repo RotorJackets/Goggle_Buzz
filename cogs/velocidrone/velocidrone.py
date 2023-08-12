@@ -384,6 +384,7 @@ class Velocidrone(commands.GroupCog, name="velocidrone"):
         whitelist: bool = False,
         tracks: bool = False,
     ):
+        # TODO: MAKE THE REMOVAL BOYS
         velocidrone_helper.reset_velocidrone(interaction.guild.id, whitelist, tracks)
 
         await interaction.response.send_message(

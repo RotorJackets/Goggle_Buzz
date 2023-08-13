@@ -85,12 +85,13 @@ class YouTube(commands.GroupCog, name="youtube"):
         self,
         interaction: discord.Interaction,
     ):
+        # TODO: Make this an embed
         channel_list = youtube_helper.get_guild_channels(interaction.guild.id)
 
         channel_output = """"""
 
         for channel in channel_list:
-            channel_output += f"""\n**`{channel}**"""
+            channel_output += f"""\n**{channel}**"""
 
         if len(channel_output) == 0:
             channel_output = "No channels are being tracked yet!"
@@ -140,7 +141,7 @@ class YouTube(commands.GroupCog, name="youtube"):
     )
     async def background_channel_update(self):
         YouTube.background_channel_update.change_interval(
-            seconds=(youtube_helper.get_all_channel_count() * 30) + 30
+            seconds=(youtube_helper.get_all_channel_count() * 30) + 10
         )
 
         channel_diff = await youtube_helper.get_all_channel_diff()
@@ -161,6 +162,8 @@ class YouTube(commands.GroupCog, name="youtube"):
                 await self.bot.get_channel(channel_id).send(
                     f'**{channel}** has a new video:\n{channel_diff[channel]["url"]}'
                 )
+
+        youtube_helper.save_config()
 
 
 async def setup(bot: commands.Bot) -> None:

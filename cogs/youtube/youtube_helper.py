@@ -57,7 +57,7 @@ def add_channel(guild_id: int, channel: str):
         config["guilds"][str(guild_id)]["tracked_channels"].append(channel)
         if channel not in config["channels"].keys():
             config["channels"][channel] = {
-                "latest_video": {"info": None, "url": None},
+                "latest_video": {"info": None, "url": None, "upload_time": None},
                 "last_updated": None,
             }
         save_config()
@@ -144,12 +144,14 @@ def get_channel_data(channel: str) -> dict[str, str]:
         + re.search('(?<="videoId":").*?(?=")', html).group()
     )
 
-    return {"info": info, "url": url}
+    upload_time = time.time() - get_total_seconds(info)
+
+    return {"info": info, "url": url, "upload_time": upload_time}
 
 
 def update_channel_data(
-    channel: str, channel_data: dict[str, str]
-) -> dict[str, str] | None | bool:
+    channel: str, channel_data: dict[str, str, int]
+) -> dict[str, str, int] | None | bool:
     """Updates the latest video info and url for a given channel.
 
     Args:
@@ -164,14 +166,51 @@ def update_channel_data(
     if channel_data is None and channel not in config["channels"].keys():
         return None
 
-    if config["channels"][channel]["latest_video"]["url"] == channel_data["url"]:
+    new_video_upload_time = channel_data["upload_time"]
+    old_video_upload_time = config["channels"][channel]["latest_video"]["upload_time"]
+
+    print(
+        f"New: {new_video_upload_time} Old: {old_video_upload_time}, Diff: {new_video_upload_time - old_video_upload_time}"
+    )
+
+    # FIXME: Need a better way of determining if a video is older then the other one. This is because of the way that youtube might delay showing a video.
+
+    if (
+        old_video_upload_time is not None
+        and new_video_upload_time - old_video_upload_time < 120
+    ):
         return False
 
-    config["channels"][channel]["latest_video"]["info"] = channel_data["info"]
-    config["channels"][channel]["latest_video"]["url"] = channel_data["url"]
+    config["channels"][channel]["latest_video"] = channel_data
     config["channels"][channel]["last_updated"] = time.time()
     save_config()
     return channel_data
+
+
+def get_total_seconds(info: str) -> int:
+    years = re.search(r"(\d+) year", info)
+    months = re.search(r"(\d+) month", info)
+    minutes = re.search(r"(\d+) minute", info)
+    seconds = re.search(r"(\d+) second", info)
+
+    print(f"Years: {years}, Months: {months}, Minutes: {minutes}, Seconds: {seconds}")
+
+    total_seconds = 0
+
+    if years:
+        years = int(years.group(1))
+        total_seconds += years * 31536000
+    if months:
+        months = int(months.group(1))
+        total_seconds += months * 2592000
+    if minutes:
+        minutes = int(minutes.group(1))
+        total_seconds += minutes * 60
+    if seconds:
+        seconds = int(seconds.group(1))
+        total_seconds += seconds
+
+    return total_seconds
 
 
 def get_latest_channel_data(channel: str) -> dict[str, str] | None:

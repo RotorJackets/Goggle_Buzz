@@ -14,7 +14,7 @@ class MyBot(commands.Bot):
     async def on_ready(self):
         await self.wait_until_ready()
         await self.change_presence(
-            status=discord.Status.idle,
+            status=discord.Status.online,
             activity=discord.Activity(
                 name="Velocidrone",
                 # url="https://www.velocidrone.com/",
